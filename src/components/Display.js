@@ -13,8 +13,10 @@ export default class Display extends Component<Props> {
         <View style={styles.wrapper}>
           <View style={styles.padding}/>
           <View style={styles.screen}>
-            <Text style={styles.screenText}>Moi</Text>
-            <Text style={styles.screenText}>Moi2</Text>
+            <View style={styles.padding}/>
+            <Text style={styles.screenText}>20:13</Text>
+            <Text style={[styles.screenText, {textAlign: "right"}]}>35.7</Text>
+            <View style={styles.padding}/>
           </View>
           <View style={styles.padding}/>
         </View>
@@ -34,8 +36,9 @@ const styles = StyleSheet.create({
 
   screen: {
     flex: 4,
-    flexDirection: 'column',
+    flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: 'rgba(13, 52, 84, 1)',
     borderStyle: 'solid',
     borderWidth: 8,
@@ -45,8 +48,8 @@ const styles = StyleSheet.create({
 
   screenText: {
     color: 'rgba(124, 170, 208, 0.7)',
-    flex: 1,
-    fontSize: 20
+    flex: 14,
+    fontSize: 20,
   },
 
   padding: {

@@ -15,26 +15,53 @@ import {
 
 import Display from './components/Display';
 
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' +
-    'Cmd+D or shake for dev menu',
-  android: 'Double tap R on your keyboard to reload,\n' +
-    'Shake or press menu button for dev menu',
-});
-
 const backgroundImage = require('./assets/background.jpg');
 
 type Props = {};
 export default class App extends Component<Props> {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      open: false,
+      connected: false
+    };
+
+    this.emit = this.emit.bind(this);
+
+    this.socket = new WebSocket('ws://89.106.38.236:3000');
+    this.socket.onopen = () => {
+      this.setState({connected:true})
+    }; 
+
+    this.socket.onmessage = this.receive;
+
+    this.socket.onerror = (e) => {
+      console.log(e.message);
+    };
+
+    this.socket.onclose = (e) => {
+      console.log(e.code, e.reason);
+    };
+  }
+
   render() {
     return (
       <View style={styles.container}>
         <ImageBackground style={styles.background} source={backgroundImage}>
           <Display/>
-          <Text> Moi saatana</Text>
         </ImageBackground>
       </View>
     );
+  }
+
+  receive(msg) {
+    console.log(msg)
+  }
+
+  emit(message) {
+    this.socket.send(message)
   }
 }
 
