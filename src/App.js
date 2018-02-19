@@ -24,11 +24,13 @@ export default class App extends Component<Props> {
     super(props);
 
     this.state = {
-      open: false,
-      connected: false
+      connected: false, // Websocket connected
+      values: {}, // Latest values 
+      graphValues: [] // Values for the graph view.
     };
 
     this.emit = this.emit.bind(this);
+    this.receive = this.receive.bind(this);
 
     this.socket = new WebSocket('ws://89.106.38.236:3000');
     this.socket.onopen = () => {
@@ -50,14 +52,19 @@ export default class App extends Component<Props> {
     return (
       <View style={styles.container}>
         <ImageBackground style={styles.background} source={backgroundImage}>
-          <Display/>
+          <Display emitMessage={this.emit} values={this.state.values}/>
         </ImageBackground>
       </View>
     );
   }
 
   receive(msg) {
-    console.log(msg)
+    if (Array.isArray(msg.data)) { // Array for graph view
+
+  
+    } else { // New values
+      this.setState({values: msg.data})
+    }
   }
 
   emit(message) {
