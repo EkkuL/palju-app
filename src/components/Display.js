@@ -4,8 +4,11 @@ import {
   StyleSheet,
   Text,
   View,
+  Button,
   TouchableWithoutFeedback
 } from 'react-native';
+
+import Swiper from 'react-native-swiper'
 
 export default class Display extends Component {
 
@@ -52,7 +55,40 @@ export default class Display extends Component {
   }
 }
 
+  export default class Swipe extends Component<Props> {
+
+    render(){
+
+      return(
+        <Swiper style={styles.swiper} hidesButtons>
+        <View>     
+          <Display/>
+        </View>
+        <View>     
+          <Details/>
+        </View>
+        </Swiper>
+      );
+    }
+  }
+
+class Details extends Component<Props> {
+  render() {
+    return (
+      <View style={{flex: 1}}>
+      </View>
+    );
+  }
+}
+
 const styles = StyleSheet.create({
+
+  swiper: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
   wrapper: {
     flex: 1, 
     justifyContent: 'center', 

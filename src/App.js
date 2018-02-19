@@ -14,6 +14,8 @@ import {
 } from 'react-native';
 
 import Display from './components/Display';
+import Details from './components/Display';
+import Swipe from './components/Display';
 
 const backgroundImage = require('./assets/background.jpg');
 
@@ -52,7 +54,7 @@ export default class App extends Component<Props> {
     return (
       <View style={styles.container}>
         <ImageBackground style={styles.background} source={backgroundImage}>
-          <Display emitMessage={this.emit} values={this.state.values}/>
+          <Swipe/>
         </ImageBackground>
       </View>
     );
