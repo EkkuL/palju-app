@@ -3,10 +3,13 @@ import {
   AppRegistry,
   StyleSheet,
   Text,
-  View
+  View,
+  Button
 } from 'react-native';
 
-export default class Display extends Component<Props> {
+import Swiper from 'react-native-swiper'
+
+class Display extends Component<Props> {
   render() {
     return (
       <View style={{flex: 1}}>
@@ -26,7 +29,40 @@ export default class Display extends Component<Props> {
   }
 }
 
+  export default class Swipe extends Component<Props> {
+
+    render(){
+
+      return(
+        <Swiper style={styles.swiper} hidesButtons>
+        <View>     
+          <Display/>
+        </View>
+        <View>     
+          <Details/>
+        </View>
+        </Swiper>
+      );
+    }
+  }
+
+class Details extends Component<Props> {
+  render() {
+    return (
+      <View style={{flex: 1}}>
+      </View>
+    );
+  }
+}
+
 const styles = StyleSheet.create({
+
+  swiper: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
   wrapper: {
     flex: 1, 
     justifyContent: 'center', 
