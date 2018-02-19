@@ -10,7 +10,7 @@ import {
 
 import Swiper from 'react-native-swiper'
 
-export default class Display extends Component {
+class Display extends Component {
 
   constructor(props) {
     super(props);
@@ -56,15 +56,14 @@ export default class Display extends Component {
 }
 
   export default class Swipe extends Component<Props> {
-
     render(){
 
       return(
         <Swiper style={styles.swiper} hidesButtons>
-        <View>     
+      <View style={{flex: 1}}>     
           <Display/>
         </View>
-        <View>     
+      <View style={{flex: 1}}>     
           <Details/>
         </View>
         </Swiper>
