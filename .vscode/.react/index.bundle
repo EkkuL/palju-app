@@ -58738,7 +58738,7 @@ __d(function (global, require, module, exports, _dependencyMap) {
       height: '100%'
     }
   });
-},487,[108,175,12,488,490,493,491],"PaljuApp/src/App.js");
+},487,[108,175,12,488,490,493,494],"PaljuApp/src/App.js");
 __d(function (global, require, module, exports, _dependencyMap) {
   var _src = require(_dependencyMap[0], "./src/");
 
@@ -59589,6 +59589,11 @@ __d(function (global, require, module, exports, _dependencyMap) {
     };
   }
 
+  var minHeight = 60;
+  var maxHeight = 500;
+  var UIManager = _reactNative.NativeModules.UIManager;
+  UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
+
   var MainView = _wrapComponent("MainView")(function (_Component) {
     _inherits(MainView, _Component);
 
@@ -59600,13 +59605,17 @@ __d(function (global, require, module, exports, _dependencyMap) {
       _this.handleExtend = function () {
         console.log("handle");
 
+        _reactNative.LayoutAnimation.linear();
+
         _this.setState({
+          height: _this.state.extended ? 60 : 500,
           extended: !_this.state.extended
         });
       };
 
       _this.state = {
-        extended: false
+        extended: false,
+        height: 60
       };
       return _this;
     }
@@ -59620,18 +59629,18 @@ __d(function (global, require, module, exports, _dependencyMap) {
             style: styles.wrapper,
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 25
+              lineNumber: 33
             }
           },
           _react3.default.createElement(
             _reactNative.View,
             {
               style: [styles.screen, {
-                height: this.state.extended ? 500 : 60
+                height: this.state.height
               }],
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 26
+                lineNumber: 34
               }
             },
             _react3.default.createElement(
@@ -59643,7 +59652,7 @@ __d(function (global, require, module, exports, _dependencyMap) {
                 onPress: this.handleExtend,
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 27
+                  lineNumber: 35
                 }
               },
               _react3.default.createElement(
@@ -59652,7 +59661,7 @@ __d(function (global, require, module, exports, _dependencyMap) {
                   style: styles.screenContentWrapper,
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 28
+                    lineNumber: 36
                   }
                 },
                 _react3.default.createElement(
@@ -59660,7 +59669,7 @@ __d(function (global, require, module, exports, _dependencyMap) {
                   {
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 29
+                      lineNumber: 37
                     }
                   },
                   " Moi "
@@ -59691,7 +59700,8 @@ __d(function (global, require, module, exports, _dependencyMap) {
       backgroundColor: 'rgba(13, 52, 84, 1)',
       borderStyle: 'solid',
       borderWidth: 8,
-      borderColor: 'rgba(0,0,0,0.8)'
+      borderColor: 'rgba(0,0,0,0.8)',
+      height: 60
     },
     screenContentWrapper: {
       flex: 1,
@@ -59707,18 +59717,6 @@ __d(function (global, require, module, exports, _dependencyMap) {
     }
   });
 },490,[108,175,12],"PaljuApp/src/components/MainView.js");
-__d(function (global, require, module, exports, _dependencyMap) {
-	module.exports = require(_dependencyMap[0], "react-native/Libraries/Image/AssetRegistry").registerAsset({
-		"__packager_asset": true,
-		"httpServerLocation": "/assets/src/assets",
-		"width": 2000,
-		"height": 3000,
-		"scales": [1],
-		"hash": "70f5953df6670d67c421c67051edc707",
-		"name": "background",
-		"type": "jpg"
-	});
-},491,[161],"src\\assets\\background.jpg");
 __d(function (global, require, module, exports, _dependencyMap) {
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -59810,6 +59808,18 @@ __d(function (global, require, module, exports, _dependencyMap) {
 
   exports.default = GraphView;
 },493,[108,175,12],"PaljuApp/src/components/GraphView.js");
+__d(function (global, require, module, exports, _dependencyMap) {
+	module.exports = require(_dependencyMap[0], "react-native/Libraries/Image/AssetRegistry").registerAsset({
+		"__packager_asset": true,
+		"httpServerLocation": "/assets/src/assets",
+		"width": 2000,
+		"height": 3000,
+		"scales": [1],
+		"hash": "70f5953df6670d67c421c67051edc707",
+		"name": "background",
+		"type": "jpg"
+	});
+},494,[161],"src\\assets\\background.jpg");
 require(23);
 require(11);
 //# sourceMappingURL=index.map

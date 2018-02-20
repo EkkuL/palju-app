@@ -1,13 +1,20 @@
 import React, { Component } from 'react';
 import {
-  AppRegistry,
+  NativeModules,
+  LayoutAnimation,
   StyleSheet,
   Text,
   View,
-  Button,
   TouchableWithoutFeedback
 } from 'react-native';
 
+const minHeight = 60
+const maxHeight = 500
+
+const { UIManager } = NativeModules;
+
+UIManager.setLayoutAnimationEnabledExperimental &&
+  UIManager.setLayoutAnimationEnabledExperimental(true);
 
 export default class MainView extends Component {
 
@@ -15,7 +22,8 @@ export default class MainView extends Component {
     super(props);
 
     this.state = {
-      extended: false, // Is the screen extended.
+      extended: false,
+      height: 60
     }
   }
 
@@ -23,20 +31,24 @@ export default class MainView extends Component {
 
     return (
       <View style={styles.wrapper}>
-        <View style={[styles.screen, {height: this.state.extended ? 500 : 60}]}>
+        <View style={[styles.screen, {height: this.state.height}]}>
           <TouchableWithoutFeedback style={{width: '100%'}} onPress={this.handleExtend}>
             <View style={styles.screenContentWrapper}>
               <Text> Moi </Text>
             </View>
           </TouchableWithoutFeedback>
-        </View>
+        </View> 
       </View>
     );
   }
 
   handleExtend = () => {
     console.log("handle")
-    this.setState({extended: !this.state.extended})
+    LayoutAnimation.linear();
+    this.setState({
+      height: this.state.extended ? 60 : 500, 
+      extended: !this.state.extended
+    });
   }
 }
 
@@ -56,7 +68,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(13, 52, 84, 1)',
     borderStyle: 'solid',
     borderWidth: 8,
-    borderColor: 'rgba(0,0,0,0.8)'
+    borderColor: 'rgba(0,0,0,0.8)',
+    height: 60
   },
 
   screenContentWrapper: {
