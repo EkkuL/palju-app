@@ -13,9 +13,11 @@ import {
   View
 } from 'react-native';
 
-import Display from './components/Display';
-import Details from './components/Display';
-import Swipe from './components/Display';
+import Swiper from 'react-native-swiper'
+
+
+import MainView from './components/MainView';
+import GraphView from './components/GraphView';
 
 const backgroundImage = require('./assets/background.jpg');
 
@@ -54,7 +56,14 @@ export default class App extends Component<Props> {
     return (
       <View style={styles.container}>
         <ImageBackground style={styles.background} source={backgroundImage}>
-          <Swipe/>
+          <Swiper style={styles.swiper} showButtons={false} showsPagination={false}>
+            <View style={{flex: 1}}>     
+              <MainView/>
+            </View>
+            <View style={{flex: 1}}>     
+              <GraphView/>
+            </View>
+          </Swiper>
         </ImageBackground>
       </View>
     );
@@ -76,27 +85,15 @@ export default class App extends Component<Props> {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    flex: 1
+  },
+  swiper: {
+    flex: 1
   },
   background: {
-    backgroundColor: '#ccc',
     flex: 1,
     position: 'absolute',
     width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+    height: '100%'
+  }
 });

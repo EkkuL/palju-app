@@ -58553,9 +58553,17 @@ __d(function (global, require, module, exports, _dependencyMap) {
 
   var _reactNative = require(_dependencyMap[2], "react-native");
 
-  var _Display = require(_dependencyMap[3], "./components/Display");
+  var _reactNativeSwiper = require(_dependencyMap[3], "react-native-swiper");
 
-  var _Display2 = _interopRequireDefault(_Display);
+  var _reactNativeSwiper2 = _interopRequireDefault(_reactNativeSwiper);
+
+  var _MainView = require(_dependencyMap[4], "./components/MainView");
+
+  var _MainView2 = _interopRequireDefault(_MainView);
+
+  var _GraphView = require(_dependencyMap[5], "./components/GraphView");
+
+  var _GraphView2 = _interopRequireDefault(_GraphView);
 
   function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -58584,7 +58592,7 @@ __d(function (global, require, module, exports, _dependencyMap) {
     };
   }
 
-  var backgroundImage = require(_dependencyMap[4], './assets/background.jpg');
+  var backgroundImage = require(_dependencyMap[6], './assets/background.jpg');
 
   var App = _wrapComponent("App")(function (_Component) {
     _inherits(App, _Component);
@@ -58631,7 +58639,7 @@ __d(function (global, require, module, exports, _dependencyMap) {
             style: styles.container,
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 55
+              lineNumber: 57
             }
           },
           _react3.default.createElement(
@@ -58641,15 +58649,57 @@ __d(function (global, require, module, exports, _dependencyMap) {
               source: backgroundImage,
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 56
+                lineNumber: 58
               }
             },
-            _react3.default.createElement(_Display2.default, {
-              __source: {
-                fileName: _jsxFileName,
-                lineNumber: 57
-              }
-            })
+            _react3.default.createElement(
+              _reactNativeSwiper2.default,
+              {
+                style: styles.swiper,
+                showButtons: false,
+                showsPagination: false,
+                __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 59
+                }
+              },
+              _react3.default.createElement(
+                _reactNative.View,
+                {
+                  style: {
+                    flex: 1
+                  },
+                  __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 60
+                  }
+                },
+                _react3.default.createElement(_MainView2.default, {
+                  __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 61
+                  }
+                })
+              ),
+              _react3.default.createElement(
+                _reactNative.View,
+                {
+                  style: {
+                    flex: 1
+                  },
+                  __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 63
+                  }
+                },
+                _react3.default.createElement(_GraphView2.default, {
+                  __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 64
+                  }
+                })
+              )
+            )
           )
         );
       }
@@ -58676,385 +58726,19 @@ __d(function (global, require, module, exports, _dependencyMap) {
 
   var styles = _reactNative.StyleSheet.create({
     container: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: '#F5FCFF'
+      flex: 1
+    },
+    swiper: {
+      flex: 1
     },
     background: {
-      backgroundColor: '#ccc',
       flex: 1,
       position: 'absolute',
       width: '100%',
-      height: '100%',
-      justifyContent: 'center'
-    },
-    welcome: {
-      fontSize: 20,
-      textAlign: 'center',
-      margin: 10
-    },
-    instructions: {
-      textAlign: 'center',
-      color: '#333333',
-      marginBottom: 5
+      height: '100%'
     }
   });
-},487,[108,175,12,488,491],"PaljuApp/src/App.js");
-__d(function (global, require, module, exports, _dependencyMap) {
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  var _react2 = require(_dependencyMap[0], "react");
-
-  var _react3 = _interopRequireDefault(_react2);
-
-  var _index = require(_dependencyMap[1], "./../../node_modules/react-transform-hmr/lib/index.js");
-
-  var _index2 = _interopRequireDefault(_index);
-
-  var _jsxFileName = "c:\\development\\palju-app\\PaljuApp\\src\\components\\Display.js";
-
-  var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-  var _reactNative = require(_dependencyMap[2], "react-native");
-
-  var _reactNativeSwiper = require(_dependencyMap[3], "react-native-swiper");
-
-  var _reactNativeSwiper2 = _interopRequireDefault(_reactNativeSwiper);
-
-  function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-  function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-  var _components = {
-    Display: {
-      displayName: "Display"
-    },
-    Swipe: {
-      displayName: "Swipe"
-    },
-    Details: {
-      displayName: "Details"
-    }
-  };
-
-  var _node_modulesReactTransformHmrLibIndexJs2 = (0, _index2.default)({
-    filename: "c:/development/palju-app/PaljuApp/src/components/Display.js",
-    components: _components,
-    locals: [module],
-    imports: [_react3.default]
-  });
-
-  function _wrapComponent(id) {
-    return function (Component) {
-      return _node_modulesReactTransformHmrLibIndexJs2(Component, id);
-    };
-  }
-
-  var Display = _wrapComponent("Display")(function (_Component) {
-    _inherits(Display, _Component);
-
-    function Display(props) {
-      _classCallCheck(this, Display);
-
-      var _this = _possibleConstructorReturn(this, (Display.__proto__ || Object.getPrototypeOf(Display)).call(this, props));
-
-      _this.handleExtend = function () {
-        console.log("handle");
-
-        _this.setState({
-          extended: !_this.state.extended
-        });
-      };
-
-      _this.state = {
-        extended: false
-      };
-      return _this;
-    }
-
-    _createClass(Display, [{
-      key: "render",
-      value: function render() {
-        console.log(this.state.extended);
-
-        var screenContent = _react3.default.createElement(
-          _reactNative.View,
-          {
-            style: {
-              flex: 14,
-              flexDirection: 'row'
-            },
-            __source: {
-              fileName: _jsxFileName,
-              lineNumber: 26
-            }
-          },
-          _react3.default.createElement(_reactNative.View, {
-            style: styles.padding,
-            __source: {
-              fileName: _jsxFileName,
-              lineNumber: 27
-            }
-          }),
-          _react3.default.createElement(
-            _reactNative.Text,
-            {
-              style: styles.screenText,
-              __source: {
-                fileName: _jsxFileName,
-                lineNumber: 28
-              }
-            },
-            "20:13"
-          ),
-          _react3.default.createElement(
-            _reactNative.Text,
-            {
-              style: [styles.screenText, {
-                textAlign: "right"
-              }],
-              __source: {
-                fileName: _jsxFileName,
-                lineNumber: 29
-              }
-            },
-            "35.7"
-          ),
-          _react3.default.createElement(_reactNative.View, {
-            style: styles.padding,
-            __source: {
-              fileName: _jsxFileName,
-              lineNumber: 30
-            }
-          })
-        );
-
-        return _react3.default.createElement(
-          _reactNative.TouchableWithoutFeedback,
-          {
-            style: {
-              flex: 1
-            },
-            onPress: this.handleExtend,
-            __source: {
-              fileName: _jsxFileName,
-              lineNumber: 34
-            }
-          },
-          _react3.default.createElement(
-            _reactNative.View,
-            {
-              style: {
-                flex: 1
-              },
-              __source: {
-                fileName: _jsxFileName,
-                lineNumber: 35
-              }
-            },
-            _react3.default.createElement(
-              _reactNative.View,
-              {
-                style: styles.wrapper,
-                __source: {
-                  fileName: _jsxFileName,
-                  lineNumber: 36
-                }
-              },
-              _react3.default.createElement(_reactNative.View, {
-                style: styles.padding,
-                __source: {
-                  fileName: _jsxFileName,
-                  lineNumber: 37
-                }
-              }),
-              _react3.default.createElement(
-                _reactNative.View,
-                {
-                  style: [styles.screen, this.state.extended ? {
-                    height: 500
-                  } : {
-                    height: 60
-                  }],
-                  __source: {
-                    fileName: _jsxFileName,
-                    lineNumber: 38
-                  }
-                },
-                _react3.default.createElement(_reactNative.View, {
-                  style: styles.padding,
-                  __source: {
-                    fileName: _jsxFileName,
-                    lineNumber: 39
-                  }
-                }),
-                screenContent,
-                _react3.default.createElement(_reactNative.View, {
-                  style: styles.padding,
-                  __source: {
-                    fileName: _jsxFileName,
-                    lineNumber: 41
-                  }
-                })
-              ),
-              _react3.default.createElement(_reactNative.View, {
-                style: styles.padding,
-                __source: {
-                  fileName: _jsxFileName,
-                  lineNumber: 43
-                }
-              })
-            ),
-            _react3.default.createElement(_reactNative.View, {
-              style: styles.wrapper,
-              __source: {
-                fileName: _jsxFileName,
-                lineNumber: 45
-              }
-            })
-          )
-        );
-      }
-    }]);
-
-    return Display;
-  }(_react2.Component));
-
-  var Swipe = _wrapComponent("Swipe")(function (_Component2) {
-    _inherits(Swipe, _Component2);
-
-    function Swipe() {
-      _classCallCheck(this, Swipe);
-
-      return _possibleConstructorReturn(this, (Swipe.__proto__ || Object.getPrototypeOf(Swipe)).apply(this, arguments));
-    }
-
-    _createClass(Swipe, [{
-      key: "render",
-      value: function render() {
-        return _react3.default.createElement(
-          _reactNativeSwiper2.default,
-          {
-            style: styles.swiper,
-            hidesButtons: true,
-            __source: {
-              fileName: _jsxFileName,
-              lineNumber: 62
-            }
-          },
-          _react3.default.createElement(
-            _reactNative.View,
-            {
-              style: {
-                flex: 1
-              },
-              __source: {
-                fileName: _jsxFileName,
-                lineNumber: 63
-              }
-            },
-            _react3.default.createElement(Display, {
-              __source: {
-                fileName: _jsxFileName,
-                lineNumber: 64
-              }
-            })
-          ),
-          _react3.default.createElement(
-            _reactNative.View,
-            {
-              style: {
-                flex: 1
-              },
-              __source: {
-                fileName: _jsxFileName,
-                lineNumber: 66
-              }
-            },
-            _react3.default.createElement(Details, {
-              __source: {
-                fileName: _jsxFileName,
-                lineNumber: 67
-              }
-            })
-          )
-        );
-      }
-    }]);
-
-    return Swipe;
-  }(_react2.Component));
-
-  exports.default = Swipe;
-
-  var Details = _wrapComponent("Details")(function (_Component3) {
-    _inherits(Details, _Component3);
-
-    function Details() {
-      _classCallCheck(this, Details);
-
-      return _possibleConstructorReturn(this, (Details.__proto__ || Object.getPrototypeOf(Details)).apply(this, arguments));
-    }
-
-    _createClass(Details, [{
-      key: "render",
-      value: function render() {
-        return _react3.default.createElement(_reactNative.View, {
-          style: {
-            flex: 1
-          },
-          __source: {
-            fileName: _jsxFileName,
-            lineNumber: 77
-          }
-        });
-      }
-    }]);
-
-    return Details;
-  }(_react2.Component));
-
-  var styles = _reactNative.StyleSheet.create({
-    swiper: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center'
-    },
-    wrapper: {
-      flex: 1,
-      justifyContent: 'center',
-      flexDirection: 'row'
-    },
-    screen: {
-      flex: 4,
-      flexDirection: 'column',
-      justifyContent: 'center',
-      backgroundColor: 'rgba(13, 52, 84, 1)',
-      borderStyle: 'solid',
-      borderWidth: 8,
-      borderColor: 'rgba(0,0,0,0.8)'
-    },
-    extendedScreen: {
-      height: 500
-    },
-    screenText: {
-      color: 'rgba(124, 170, 208, 0.7)',
-      flex: 1,
-      fontSize: 20
-    },
-    padding: {
-      flex: 1,
-      height: 10
-    }
-  });
-},488,[108,175,12,489],"PaljuApp/src/components/Display.js");
+},487,[108,175,12,488,490,493,491],"PaljuApp/src/App.js");
 __d(function (global, require, module, exports, _dependencyMap) {
   var _src = require(_dependencyMap[0], "./src/");
 
@@ -59063,7 +58747,7 @@ __d(function (global, require, module, exports, _dependencyMap) {
   function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
   module.exports = _src2.default;
-},489,[490],"react-native-swiper/index.js");
+},488,[489],"react-native-swiper/index.js");
 __d(function (global, require, module, exports, _dependencyMap) {
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -59858,7 +59542,171 @@ __d(function (global, require, module, exports, _dependencyMap) {
   }, _temp2));
 
   exports.default = _component;
-},490,[108,175,127,12],"react-native-swiper/src/index.js");
+},489,[108,175,127,12],"react-native-swiper/src/index.js");
+__d(function (global, require, module, exports, _dependencyMap) {
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  var _react2 = require(_dependencyMap[0], "react");
+
+  var _react3 = _interopRequireDefault(_react2);
+
+  var _index = require(_dependencyMap[1], "./../../node_modules/react-transform-hmr/lib/index.js");
+
+  var _index2 = _interopRequireDefault(_index);
+
+  var _jsxFileName = "c:\\development\\palju-app\\PaljuApp\\src\\components\\MainView.js";
+
+  var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+  var _reactNative = require(_dependencyMap[2], "react-native");
+
+  function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+  function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+  var _components = {
+    MainView: {
+      displayName: "MainView"
+    }
+  };
+
+  var _node_modulesReactTransformHmrLibIndexJs2 = (0, _index2.default)({
+    filename: "c:/development/palju-app/PaljuApp/src/components/MainView.js",
+    components: _components,
+    locals: [module],
+    imports: [_react3.default]
+  });
+
+  function _wrapComponent(id) {
+    return function (Component) {
+      return _node_modulesReactTransformHmrLibIndexJs2(Component, id);
+    };
+  }
+
+  var MainView = _wrapComponent("MainView")(function (_Component) {
+    _inherits(MainView, _Component);
+
+    function MainView(props) {
+      _classCallCheck(this, MainView);
+
+      var _this = _possibleConstructorReturn(this, (MainView.__proto__ || Object.getPrototypeOf(MainView)).call(this, props));
+
+      _this.handleExtend = function () {
+        console.log("handle");
+
+        _this.setState({
+          extended: !_this.state.extended
+        });
+      };
+
+      _this.state = {
+        extended: false
+      };
+      return _this;
+    }
+
+    _createClass(MainView, [{
+      key: "render",
+      value: function render() {
+        return _react3.default.createElement(
+          _reactNative.View,
+          {
+            style: styles.wrapper,
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 25
+            }
+          },
+          _react3.default.createElement(
+            _reactNative.View,
+            {
+              style: [styles.screen, {
+                height: this.state.extended ? 500 : 60
+              }],
+              __source: {
+                fileName: _jsxFileName,
+                lineNumber: 26
+              }
+            },
+            _react3.default.createElement(
+              _reactNative.TouchableWithoutFeedback,
+              {
+                style: {
+                  width: '100%'
+                },
+                onPress: this.handleExtend,
+                __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 27
+                }
+              },
+              _react3.default.createElement(
+                _reactNative.View,
+                {
+                  style: styles.screenContentWrapper,
+                  __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 28
+                  }
+                },
+                _react3.default.createElement(
+                  _reactNative.Text,
+                  {
+                    __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 29
+                    }
+                  },
+                  " Moi "
+                )
+              )
+            )
+          )
+        );
+      }
+    }]);
+
+    return MainView;
+  }(_react2.Component));
+
+  exports.default = MainView;
+
+  var styles = _reactNative.StyleSheet.create({
+    wrapper: {
+      flex: 1,
+      flexDirection: 'row',
+      paddingTop: 30,
+      paddingBottom: 30,
+      paddingLeft: 20,
+      paddingRight: 20
+    },
+    screen: {
+      flex: 1,
+      backgroundColor: 'rgba(13, 52, 84, 1)',
+      borderStyle: 'solid',
+      borderWidth: 8,
+      borderColor: 'rgba(0,0,0,0.8)'
+    },
+    screenContentWrapper: {
+      flex: 1,
+      paddingTop: 15,
+      paddingBottom: 15,
+      paddingLeft: 15,
+      paddingRight: 15
+    },
+    screenText: {
+      color: 'rgba(124, 170, 208, 0.7)',
+      flex: 1,
+      fontSize: 20
+    }
+  });
+},490,[108,175,12],"PaljuApp/src/components/MainView.js");
 __d(function (global, require, module, exports, _dependencyMap) {
 	module.exports = require(_dependencyMap[0], "react-native/Libraries/Image/AssetRegistry").registerAsset({
 		"__packager_asset": true,
@@ -59871,6 +59719,97 @@ __d(function (global, require, module, exports, _dependencyMap) {
 		"type": "jpg"
 	});
 },491,[161],"src\\assets\\background.jpg");
+__d(function (global, require, module, exports, _dependencyMap) {
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  var _react2 = require(_dependencyMap[0], "react");
+
+  var _react3 = _interopRequireDefault(_react2);
+
+  var _index = require(_dependencyMap[1], "./../../node_modules/react-transform-hmr/lib/index.js");
+
+  var _index2 = _interopRequireDefault(_index);
+
+  var _jsxFileName = "c:\\development\\palju-app\\PaljuApp\\src\\components\\GraphView.js";
+
+  var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+  var _reactNative = require(_dependencyMap[2], "react-native");
+
+  function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+  function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+  var _components = {
+    GraphView: {
+      displayName: "GraphView"
+    }
+  };
+
+  var _node_modulesReactTransformHmrLibIndexJs2 = (0, _index2.default)({
+    filename: "c:/development/palju-app/PaljuApp/src/components/GraphView.js",
+    components: _components,
+    locals: [module],
+    imports: [_react3.default]
+  });
+
+  function _wrapComponent(id) {
+    return function (Component) {
+      return _node_modulesReactTransformHmrLibIndexJs2(Component, id);
+    };
+  }
+
+  var GraphView = _wrapComponent("GraphView")(function (_Component) {
+    _inherits(GraphView, _Component);
+
+    function GraphView() {
+      _classCallCheck(this, GraphView);
+
+      return _possibleConstructorReturn(this, (GraphView.__proto__ || Object.getPrototypeOf(GraphView)).apply(this, arguments));
+    }
+
+    _createClass(GraphView, [{
+      key: "render",
+      value: function render() {
+        return _react3.default.createElement(
+          _reactNative.View,
+          {
+            style: {
+              flex: 1
+            },
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 14
+            }
+          },
+          _react3.default.createElement(
+            _reactNative.Text,
+            {
+              style: {
+                color: '#FFF'
+              },
+              __source: {
+                fileName: _jsxFileName,
+                lineNumber: 15
+              }
+            },
+            " Moi "
+          )
+        );
+      }
+    }]);
+
+    return GraphView;
+  }(_react2.Component));
+
+  exports.default = GraphView;
+},493,[108,175,12],"PaljuApp/src/components/GraphView.js");
 require(23);
 require(11);
 //# sourceMappingURL=index.map
