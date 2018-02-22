@@ -59590,7 +59590,7 @@ __d(function (global, require, module, exports, _dependencyMap) {
     };
   }
 
-  var minHeight = 70;
+  var minHeight = 90;
   var maxHeight = 500;
   var UIManager = _reactNative.NativeModules.UIManager;
   UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -59604,8 +59604,6 @@ __d(function (global, require, module, exports, _dependencyMap) {
       var _this = _possibleConstructorReturn(this, (MainView.__proto__ || Object.getPrototypeOf(MainView)).call(this, props));
 
       _this.handleExtend = function () {
-        console.log("handle");
-
         _reactNative.LayoutAnimation.linear();
 
         _this.setState({
@@ -59659,7 +59657,7 @@ __d(function (global, require, module, exports, _dependencyMap) {
             _react3.default.createElement(
               _reactNative.Text,
               {
-                style: [styles.basicViewTextBig, {
+                style: [styles.textBig, {
                   textAlign: 'left'
                 }],
                 __source: {
@@ -59675,7 +59673,7 @@ __d(function (global, require, module, exports, _dependencyMap) {
             _react3.default.createElement(
               _reactNative.Text,
               {
-                style: [styles.basicViewTextSmall, {
+                style: [styles.textSmall, {
                   textAlign: 'left'
                 }],
                 __source: {
@@ -59700,19 +59698,23 @@ __d(function (global, require, module, exports, _dependencyMap) {
             _react3.default.createElement(
               _reactNative.Text,
               {
-                style: [styles.basicViewTextBig, {
-                  textAlign: 'right'
+                style: [styles.textBig, {
+                  textAlign: 'right',
+                  fontSize: 32
                 }],
                 __source: {
                   fileName: _jsxFileName,
                   lineNumber: 44
                 }
               },
-              data.temp_high
+              data.temp_high + '°C'
             )
           )
         );
 
+        var extraViewData = data;
+        delete extraViewData.timestamp;
+        delete extraViewData.estimation;
         var extraView = Object.keys(data).map(function (key) {
           return _react3.default.createElement(
             _reactNative.View,
@@ -59721,15 +59723,16 @@ __d(function (global, require, module, exports, _dependencyMap) {
               style: styles.extraView,
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 51
+                lineNumber: 57
               }
             },
             _react3.default.createElement(
               _reactNative.Text,
               {
+                style: [styles.textBig],
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 52
+                  lineNumber: 58
                 }
               },
               data[key]
@@ -59737,12 +59740,13 @@ __d(function (global, require, module, exports, _dependencyMap) {
             _react3.default.createElement(
               _reactNative.Text,
               {
+                style: [styles.textSmall],
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 53
+                  lineNumber: 59
                 }
               },
-              key
+              labels[key]
             )
           );
         });
@@ -59752,7 +59756,7 @@ __d(function (global, require, module, exports, _dependencyMap) {
             style: styles.wrapper,
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 61
+              lineNumber: 67
             }
           },
           _react3.default.createElement(
@@ -59763,33 +59767,33 @@ __d(function (global, require, module, exports, _dependencyMap) {
               }],
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 62
+                lineNumber: 68
               }
             },
             _react3.default.createElement(
-              _reactNative.TouchableWithoutFeedback,
+              _reactNative.View,
               {
-                style: {
-                  width: '100%'
-                },
-                onPress: this.handleExtend,
+                style: styles.screenContentWrapper,
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 63
+                  lineNumber: 69
                 }
               },
               _react3.default.createElement(
-                _reactNative.View,
+                _reactNative.TouchableWithoutFeedback,
                 {
-                  style: styles.screenContentWrapper,
+                  style: {
+                    width: '100%'
+                  },
+                  onPress: this.handleExtend,
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 64
+                    lineNumber: 70
                   }
                 },
-                basicView,
-                extraView
-              )
+                basicView
+              ),
+              extraView
             )
           )
         );
@@ -59838,13 +59842,26 @@ __d(function (global, require, module, exports, _dependencyMap) {
       flexDirection: 'row',
       flex: 1
     },
-    basicViewTextBig: {
-      fontSize: 20
+    textBig: {
+      fontFamily: 'notoserif',
+      fontSize: 20,
+      color: 'rgb(82, 124, 161)'
     },
-    basicViewTextSmall: {
-      fontSize: 12
+    textSmall: {
+      fontFamily: 'notoserif',
+      fontSize: 12,
+      color: 'rgb(82, 124, 161)'
     }
   });
+
+  var labels = {
+    temp_low: 'TEMP LOW',
+    temp_high: 'TEMP HIGH',
+    temp_ambient: 'AMBIENT',
+    warming_phase: 'WARMING PHASE',
+    target: 'TARGET',
+    low_limit: 'LOW LIMIT'
+  };
 },490,[108,175,12],"PaljuApp/src/components/MainView.js");
 __d(function (global, require, module, exports, _dependencyMap) {
   Object.defineProperty(exports, "__esModule", {

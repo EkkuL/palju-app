@@ -9,7 +9,7 @@ import {
   TouchableWithoutFeedback
 } from 'react-native';
 
-const minHeight = 70;
+const minHeight = 90;
 const maxHeight = 500;
 
 const { UIManager } = NativeModules;
@@ -37,20 +37,26 @@ export default class MainView extends Component {
     let basicView = (
       <View style={styles.basicView}>
         <View style={{flex: 1}}>
-          <Text style={[styles.basicViewTextBig, {textAlign: 'left'}]}>{timestamp.toLocaleTimeString('fi-FI', {hour: '2-digsit', minute: '2-digit'})}</Text>
-          <Text style={[styles.basicViewTextSmall, {textAlign: 'left'}]}>{timestamp.getDate() + '.' + (timestamp.getMonth() + 1) + '.' + timestamp.getFullYear()}</Text>
+          <Text style={[styles.textBig, {textAlign: 'left'}]}>{timestamp.toLocaleTimeString('fi-FI', {hour: '2-digit', minute: '2-digit'})}</Text>
+          <Text style={[styles.textSmall, {textAlign: 'left'}]}>{timestamp.getDate() + '.' + (timestamp.getMonth() + 1) + '.' + timestamp.getFullYear()}</Text>
         </View>
         <View style={{flex: 1}}>
-          <Text style={[styles.basicViewTextBig, {textAlign: 'right'}]}>{data.temp_high}</Text>
+          <Text style={[styles.textBig, {textAlign: 'right', fontSize: 32}]}>{data.temp_high + '°C'}</Text>
         </View>
       </View>
     )
 
+    let extraViewData = data;
+    
+    // Don't show twice.
+    delete extraViewData.timestamp
+    delete extraViewData.estimation
+
     let extraView = Object.keys(data).map(key => {
       return (
         <View key={key} style={styles.extraView}>
-          <Text>{data[key]}</Text>
-          <Text>{key}</Text>
+          <Text style={[styles.textBig]}>{data[key]}</Text>
+          <Text style={[styles.textSmall]}>{labels[key]}</Text>
         </View>
       )
     });
@@ -60,19 +66,18 @@ export default class MainView extends Component {
     return (
       <View style={styles.wrapper}>
         <View style={[styles.screen, {height: this.state.height}]}>
-          <TouchableWithoutFeedback style={{width: '100%'}} onPress={this.handleExtend}>
             <View style={styles.screenContentWrapper}>
-              {basicView}
+              <TouchableWithoutFeedback style={{width: '100%'}} onPress={this.handleExtend}>
+                {basicView}
+              </TouchableWithoutFeedback>
               {extraView}
             </View>
-          </TouchableWithoutFeedback>
         </View> 
       </View>
     );
   }
 
   handleExtend = () => {
-    console.log("handle")
     LayoutAnimation.linear();
     this.setState({
       height: this.state.extended ? minHeight : maxHeight, 
@@ -125,11 +130,23 @@ const styles = StyleSheet.create({
     flex: 1
   },
 
-  basicViewTextBig: {
-    fontSize: 20
+  textBig: {
+    fontFamily: 'notoserif',
+    fontSize: 20,
+    color: 'rgb(82, 124, 161)'
   },
-  basicViewTextSmall: {
-    fontSize: 12
+  textSmall: {
+    fontFamily: 'notoserif',
+    fontSize: 12,
+    color: 'rgb(82, 124, 161)'
   }
 })
 
+const labels = {
+  temp_low: 'TEMP LOW', 
+  temp_high: 'TEMP HIGH', 
+  temp_ambient: 'AMBIENT', 
+  warming_phase: 'WARMING PHASE', 
+  target: 'TARGET', 
+  low_limit: 'LOW LIMIT'
+}
