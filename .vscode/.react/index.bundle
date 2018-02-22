@@ -58658,6 +58658,7 @@ __d(function (global, require, module, exports, _dependencyMap) {
                 style: styles.swiper,
                 showButtons: false,
                 showsPagination: false,
+                loop: false,
                 __source: {
                   fileName: _jsxFileName,
                   lineNumber: 59
@@ -58738,7 +58739,7 @@ __d(function (global, require, module, exports, _dependencyMap) {
       height: '100%'
     }
   });
-},487,[108,175,12,488,490,493,494],"PaljuApp/src/App.js");
+},487,[108,175,12,488,490,491,492],"PaljuApp/src/App.js");
 __d(function (global, require, module, exports, _dependencyMap) {
   var _src = require(_dependencyMap[0], "./src/");
 
@@ -59589,7 +59590,7 @@ __d(function (global, require, module, exports, _dependencyMap) {
     };
   }
 
-  var minHeight = 60;
+  var minHeight = 70;
   var maxHeight = 500;
   var UIManager = _reactNative.NativeModules.UIManager;
   UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -59608,14 +59609,14 @@ __d(function (global, require, module, exports, _dependencyMap) {
         _reactNative.LayoutAnimation.linear();
 
         _this.setState({
-          height: _this.state.extended ? 60 : 500,
+          height: _this.state.extended ? minHeight : maxHeight,
           extended: !_this.state.extended
         });
       };
 
       _this.state = {
         extended: false,
-        height: 60
+        height: minHeight
       };
       return _this;
     }
@@ -59623,13 +59624,135 @@ __d(function (global, require, module, exports, _dependencyMap) {
     _createClass(MainView, [{
       key: "render",
       value: function render() {
+        var data = {
+          temp_low: 36.7,
+          temp_high: 36.9,
+          temp_ambient: 10.0,
+          warming_phase: 'ON',
+          target: 38.0,
+          low_limit: 36.5,
+          timestamp: 1514764800,
+          estimation: 1514767200
+        };
+        var timestamp = new Date(data.timestamp * 1000);
+
+        var basicView = _react3.default.createElement(
+          _reactNative.View,
+          {
+            style: styles.basicView,
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 38
+            }
+          },
+          _react3.default.createElement(
+            _reactNative.View,
+            {
+              style: {
+                flex: 1
+              },
+              __source: {
+                fileName: _jsxFileName,
+                lineNumber: 39
+              }
+            },
+            _react3.default.createElement(
+              _reactNative.Text,
+              {
+                style: [styles.basicViewTextBig, {
+                  textAlign: 'left'
+                }],
+                __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 40
+                }
+              },
+              timestamp.toLocaleTimeString('fi-FI', {
+                hour: '2-digit',
+                minute: '2-digit'
+              })
+            ),
+            _react3.default.createElement(
+              _reactNative.Text,
+              {
+                style: [styles.basicViewTextSmall, {
+                  textAlign: 'left'
+                }],
+                __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 41
+                }
+              },
+              timestamp.getDate() + '.' + (timestamp.getMonth() + 1) + '.' + timestamp.getFullYear()
+            )
+          ),
+          _react3.default.createElement(
+            _reactNative.View,
+            {
+              style: {
+                flex: 1
+              },
+              __source: {
+                fileName: _jsxFileName,
+                lineNumber: 43
+              }
+            },
+            _react3.default.createElement(
+              _reactNative.Text,
+              {
+                style: [styles.basicViewTextBig, {
+                  textAlign: 'right'
+                }],
+                __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 44
+                }
+              },
+              data.temp_high
+            )
+          )
+        );
+
+        var extraView = Object.keys(data).map(function (key) {
+          return _react3.default.createElement(
+            _reactNative.View,
+            {
+              key: key,
+              style: styles.extraView,
+              __source: {
+                fileName: _jsxFileName,
+                lineNumber: 51
+              }
+            },
+            _react3.default.createElement(
+              _reactNative.Text,
+              {
+                __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 52
+                }
+              },
+              data[key]
+            ),
+            _react3.default.createElement(
+              _reactNative.Text,
+              {
+                __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 53
+                }
+              },
+              key
+            )
+          );
+        });
         return _react3.default.createElement(
           _reactNative.View,
           {
             style: styles.wrapper,
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 33
+              lineNumber: 61
             }
           },
           _react3.default.createElement(
@@ -59640,7 +59763,7 @@ __d(function (global, require, module, exports, _dependencyMap) {
               }],
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 34
+                lineNumber: 62
               }
             },
             _react3.default.createElement(
@@ -59652,7 +59775,7 @@ __d(function (global, require, module, exports, _dependencyMap) {
                 onPress: this.handleExtend,
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 35
+                  lineNumber: 63
                 }
               },
               _react3.default.createElement(
@@ -59661,19 +59784,11 @@ __d(function (global, require, module, exports, _dependencyMap) {
                   style: styles.screenContentWrapper,
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 36
+                    lineNumber: 64
                   }
                 },
-                _react3.default.createElement(
-                  _reactNative.Text,
-                  {
-                    __source: {
-                      fileName: _jsxFileName,
-                      lineNumber: 37
-                    }
-                  },
-                  " Moi "
-                )
+                basicView,
+                extraView
               )
             )
           )
@@ -59701,19 +59816,33 @@ __d(function (global, require, module, exports, _dependencyMap) {
       borderStyle: 'solid',
       borderWidth: 8,
       borderColor: 'rgba(0,0,0,0.8)',
-      height: 60
+      overflow: 'hidden'
     },
     screenContentWrapper: {
-      flex: 1,
+      width: '100%',
       paddingTop: 15,
       paddingBottom: 15,
       paddingLeft: 15,
-      paddingRight: 15
+      paddingRight: 15,
+      height: 500
     },
     screenText: {
       color: 'rgba(124, 170, 208, 0.7)',
       flex: 1,
       fontSize: 20
+    },
+    extraView: {
+      flex: 1
+    },
+    basicView: {
+      flexDirection: 'row',
+      flex: 1
+    },
+    basicViewTextBig: {
+      fontSize: 20
+    },
+    basicViewTextSmall: {
+      fontSize: 12
     }
   });
 },490,[108,175,12],"PaljuApp/src/components/MainView.js");
@@ -59807,7 +59936,7 @@ __d(function (global, require, module, exports, _dependencyMap) {
   }(_react2.Component));
 
   exports.default = GraphView;
-},493,[108,175,12],"PaljuApp/src/components/GraphView.js");
+},491,[108,175,12],"PaljuApp/src/components/GraphView.js");
 __d(function (global, require, module, exports, _dependencyMap) {
 	module.exports = require(_dependencyMap[0], "react-native/Libraries/Image/AssetRegistry").registerAsset({
 		"__packager_asset": true,
@@ -59819,7 +59948,7 @@ __d(function (global, require, module, exports, _dependencyMap) {
 		"name": "background",
 		"type": "jpg"
 	});
-},494,[161],"src\\assets\\background.jpg");
+},492,[161],"src\\assets\\background.jpg");
 require(23);
 require(11);
 //# sourceMappingURL=index.map

@@ -56,7 +56,7 @@ export default class App extends Component<Props> {
     return (
       <View style={styles.container}>
         <ImageBackground style={styles.background} source={backgroundImage}>
-          <Swiper style={styles.swiper} showButtons={false} showsPagination={false}>
+          <Swiper style={styles.swiper} showButtons={false} showsPagination={false} loop={false}>
             <View style={{flex: 1}}>     
               <MainView/>
             </View>
