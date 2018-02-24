@@ -6,7 +6,9 @@ import {
   Text,
   View,
   FlatList,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  TouchableNativeFeedback,
+  ToastAndroid
 } from 'react-native';
 
 const minHeight = 90;
@@ -53,15 +55,19 @@ export default class MainView extends Component {
     delete extraViewData.estimation
 
     let extraView = Object.keys(data).map(key => {
+
       return (
+      
         <View key={key} style={styles.extraView}>
-          <Text style={[styles.textBig]}>{data[key]}</Text>
-          <Text style={[styles.textSmall]}>{labels[key]}</Text>
+          <TouchableWithoutFeedback style={{width: '100%'}} onPress={() => this.editValue(key)}>
+            <View>
+              <Text style={[styles.textBig]}>{data[key]}</Text>
+              <Text style={[styles.textSmall]}>{labels[key]}</Text>
+            </View>
+          </TouchableWithoutFeedback>
         </View>
       )
     });
-
-
 
     return (
       <View style={styles.wrapper}>
@@ -84,6 +90,14 @@ export default class MainView extends Component {
       extended: !this.state.extended
     });
   }
+
+  editValue(key){
+    if (editable[key] == false)
+      ToastAndroid.show("This value is not editable.", ToastAndroid.SHORT);
+    else
+      return
+  }
+
 }
 
 const styles = StyleSheet.create({
@@ -149,4 +163,13 @@ const labels = {
   warming_phase: 'WARMING PHASE', 
   target: 'TARGET', 
   low_limit: 'LOW LIMIT'
+}
+
+const editable = {
+  temp_low: false, 
+  temp_high: false, 
+  temp_ambient: false, 
+  warming_phase: true, 
+  target: true, 
+  low_limit: true
 }
