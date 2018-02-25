@@ -1,3 +1,5 @@
 rootProject.name = 'PaljuApp'
+include ':react-native-wheel-picker-android'
+project(':react-native-wheel-picker-android').projectDir = new File(settingsDir, '../node_modules/react-native-wheel-picker-android/android')
 
 include ':app'
