@@ -58,7 +58,7 @@ export default class App extends Component<Props> {
         <ImageBackground style={styles.background} source={backgroundImage}>
           <Swiper style={styles.swiper} showButtons={false} showsPagination={false} loop={false}>
             <View style={{flex: 1}}>     
-              <MainView/>
+              <MainView values={this.state.values}/>
             </View>
             <View style={{flex: 1}}>     
               <GraphView/>

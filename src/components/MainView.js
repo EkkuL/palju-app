@@ -12,8 +12,7 @@ import {
   Button
 } from 'react-native';
 
-import {WheelPicker, DatePicker, TimePicker} from 'react-native-wheel-picker-android'
-
+import WheelPickerEdit from './WheelPickerEdit';
 
 const minHeight = 90;
 const maxHeight = 500;
@@ -34,6 +33,10 @@ export default class MainView extends Component {
       data: {temp_low: 36.7, temp_high: 36.9, temp_ambient: 10.0, warming_phase: 'ON', target: 38.0, low_limit: 36.5, timestamp: 1514764800, estimation: 1514767200},
       edit: null
     }
+
+    this.cancelEdit = this.cancelEdit.bind(this);
+    this.updateValue = this.updateValue.bind(this);
+
   }
 
   render() {
@@ -74,7 +77,9 @@ export default class MainView extends Component {
       )
     });
 
-    let content = (
+    let content = this.state.edit != null ? 
+    <WheelPickerEdit onSave={this.updateValue} onCancel={this.cancelEdit} editKey={this.state.edit} /> 
+    : (
       <View style={styles.screenContentWrapper}>
         <TouchableWithoutFeedback style={{width: '100%'}} onPress={this.handleExtend}>
           {basicView}
@@ -83,55 +88,13 @@ export default class MainView extends Component {
       </View>
     )
 
-    if (this.state.edit != null){
-      content = this.renderEditMode();
-    }
-
     return (
       <View style={styles.wrapper}>
         <View style={[styles.screen, {height: this.state.height}]}>
-              {content}
+            {content}
         </View> 
       </View>
     );
-  }
-
-  renderEditMode() {
-    return (
-      <View style={[styles.screenContentWrapper, {flexDirection: 'column'}]}>
-        <View style={{flex: 2, flexDirection: 'row', paddingLeft: 50, paddingRight: 50}}>
-          <WheelPicker
-            onItemSelected={(event)=>{console.log(event)}}
-            isCurved
-            renderIndicator
-            indicatorColor={'grey'}
-            itemSpace={20}
-            data={Array.from({length:25},(v,k)=>k+20)}
-            style={{width:50, height: 300, flex: 1}}/>
-          <Text style={{color: '#CCC', paddingTop:125, fontSize: 35}}>.</Text>
-          <WheelPicker
-            onItemSelected={(event)=>{console.log(event)}}
-            isCurved
-            renderIndicator
-            indicatorColor={'grey'}
-            itemSpace={20}
-            data={Array.from({length:10},(v,k)=>k)}
-            style={{width:50, height: 300, flex: 1}}/>
-        </View>
-        <View style={{flex: 1, flexDirection: 'row', paddingLeft: 20, paddingRight: 20, alignItems: 'center', justifyContent: 'space-between'}}>
-          <View style={styles.editButton}>
-            <TouchableNativeFeedback style={styles.editButton}  onPress={()=>{this.setState({edit: null})}}>
-              <View style={{alignItems: 'center', justifyContent: 'center'}}><Text style={{color: '#CCCCCC', textAlign: 'center'}}>Cancel</Text></View>
-            </TouchableNativeFeedback>
-          </View>
-          <View style={styles.editButton}>
-            <TouchableNativeFeedback style={styles.editButton}  onPress={()=>{this.setState({edit: null})}}>
-              <View style={{alignItems: 'center', justifyContent: 'center'}}><Text style={{color: '#CCCCCC', textAlign: 'center'}}>Confirm</Text></View>
-            </TouchableNativeFeedback>
-          </View>
-        </View>
-      </View>
-    )
   }
 
   handleExtend = () => {
@@ -142,7 +105,7 @@ export default class MainView extends Component {
     });
   }
 
-  editValue(key){
+  editValue(key) {
     if (editable[key] == false)
       ToastAndroid.show("This value is not editable.", ToastAndroid.SHORT);
     else
@@ -150,23 +113,23 @@ export default class MainView extends Component {
       return
   }
 
+  cancelEdit() {
+    this.setState({edit: null})
+  }
+
+  updateValue(key, value) {
+    this.setState(prevState => ({
+      data: {
+          ...prevState.data,
+          [key]: value
+      },
+      edit: null
+    }))
+  }
+
 }
 
-const styles = StyleSheet.create({
-
-  wheelPicker: {
-    width: 50,
-    height: 100
-  },
-
-  editButton: {
-    margin: 10,
-    height: 30,
-    flex: 1,
-    borderColor: '#CCC',
-    borderWidth: 2
-  },
-  
+const styles = StyleSheet.create({  
   wrapper: {
     flex: 1,
     flexDirection: 'row',
