@@ -15,11 +15,10 @@ import {
 
 import Swiper from 'react-native-swiper'
 
-
 import MainView from './components/MainView';
 import GraphView from './components/GraphView';
 
-const backgroundImage = require('./assets/background.jpg');
+import backgroundImage from './assets/background.jpg';
 
 type Props = {};
 export default class App extends Component<Props> {
@@ -33,12 +32,12 @@ export default class App extends Component<Props> {
       graphValues: [] // Values for the graph view.
     };
 
-    this.emit = this.emit.bind(this);
-    this.receive = this.receive.bind(this);
-
     this.socket = new WebSocket('ws://89.106.38.236:3000');
+
     this.socket.onopen = () => {
-      this.setState({connected:true})
+      this.setState({
+        connected: true,
+      });
     }; 
 
     this.socket.onmessage = this.receive;
@@ -50,6 +49,21 @@ export default class App extends Component<Props> {
     this.socket.onclose = (e) => {
       console.log(e.code, e.reason);
     };
+  }
+
+  receive = (msg) => {
+    if (Array.isArray(msg.data)) { // Array for graph view
+
+    } else {
+      // New values
+      this.setState({
+        values: msg.data,
+      });
+    }
+  }
+
+  emit = (message) => {
+    this.socket.send(message);
   }
 
   render() {
@@ -68,32 +82,19 @@ export default class App extends Component<Props> {
       </View>
     );
   }
-
-  receive(msg) {
-    if (Array.isArray(msg.data)) { // Array for graph view
-
-  
-    } else { // New values
-      this.setState({values: msg.data})
-    }
-  }
-
-  emit(message) {
-    this.socket.send(message)
-  }
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
   },
   swiper: {
-    flex: 1
+    flex: 1,
   },
   background: {
     flex: 1,
     position: 'absolute',
     width: '100%',
-    height: '100%'
-  }
+    height: '100%',
+  },
 });

@@ -32,20 +32,16 @@ export default class MainView extends Component {
       height: minHeight,
       data: {temp_low: 36.7, temp_high: 36.9, temp_ambient: 10.0, warming_phase: 'ON', target: 38.0, low_limit: 36.5, timestamp: 1514764800, estimation: 1514767200},
       edit: null
-    }
-
-    this.cancelEdit = this.cancelEdit.bind(this);
-    this.updateValue = this.updateValue.bind(this);
-
+    };
   }
 
   render() {
 
-    let data = {...this.state.data};
+    const data = { ...this.state.data };
 
-    let timestamp = new Date(data.timestamp * 1000)
+    const timestamp = new Date(data.timestamp * 1000)
 
-    let basicView = (
+    const basicView = (
       <View style={styles.basicView}>
         <View style={{flex: 1}}>
           <Text style={[styles.textBig, {textAlign: 'left'}]}>{timestamp.toLocaleTimeString('fi-FI', {hour: '2-digit', minute: '2-digit'})}</Text>
@@ -57,41 +53,37 @@ export default class MainView extends Component {
       </View>
     )
     
-    let extraViewData = {...data};
+    const extraViewData = { ...data };
     // Don't show twice.
-    delete extraViewData.timestamp
-    delete extraViewData.estimation
+    delete extraViewData.timestamp;
+    delete extraViewData.estimation;
 
-    let extraView = Object.keys(extraViewData).map(key => {
-
-      return (
-      
-        <View key={key} style={styles.extraView}>
-          <TouchableWithoutFeedback style={{width: '100%'}} onPress={() => this.editValue(key)}>
-            <View>
-              <Text style={[styles.textBig]}>{data[key]}</Text>
-              <Text style={[styles.textSmall]}>{labels[key]}</Text>
-            </View>
-          </TouchableWithoutFeedback>
-        </View>
-      )
-    });
-
-    let content = this.state.edit != null ? 
-    <WheelPickerEdit onSave={this.updateValue} onCancel={this.cancelEdit} editKey={this.state.edit} /> 
-    : (
-      <View style={styles.screenContentWrapper}>
-        <TouchableWithoutFeedback style={{width: '100%'}} onPress={this.handleExtend}>
-          {basicView}
+    const extraView = Object.keys(extraViewData).map(key => (
+      <View key={key} style={styles.extraView}>
+        <TouchableWithoutFeedback style={{width: '100%'}} onPress={() => this.editValue(key)}>
+          <View>
+            <Text style={[styles.textBig]}>{data[key]}</Text>
+            <Text style={[styles.textSmall]}>{labels[key]}</Text>
+          </View>
         </TouchableWithoutFeedback>
-        {extraView}
       </View>
-    )
+    ));
+
+    const content = this.state.edit !== null
+      ? <WheelPickerEdit onSave={this.updateValue} onCancel={this.cancelEdit} editKey={this.state.edit} />
+      : (
+        <View style={styles.screenContentWrapper}>
+          <TouchableWithoutFeedback style={{width: '100%'}} onPress={this.handleExtend}>
+            {basicView}
+          </TouchableWithoutFeedback>
+          {extraView}
+        </View>
+      );
 
     return (
       <View style={styles.wrapper}>
         <View style={[styles.screen, {height: this.state.height}]}>
-            {content}
+          {content}
         </View> 
       </View>
     );
@@ -103,30 +95,33 @@ export default class MainView extends Component {
       height: this.state.extended ? minHeight : maxHeight, 
       extended: !this.state.extended
     });
-  }
+  };
 
-  editValue(key) {
-    if (editable[key] == false)
-      ToastAndroid.show("This value is not editable.", ToastAndroid.SHORT);
-    else
-      this.setState({edit: key})
-      return
-  }
+  editValue = (key) => {
+    if (!editable[key]) {
+      return ToastAndroid.show('This value is not editable.', ToastAndroid.SHORT);
+    }
+    
+    this.setState({
+      edit: key,
+    });
+  };
 
-  cancelEdit() {
-    this.setState({edit: null})
-  }
+  cancelEdit = () => {
+    this.setState({
+      edit: null,
+    });
+  };
 
-  updateValue(key, value) {
+  updateValue = (key, value) => {
     this.setState(prevState => ({
       data: {
-          ...prevState.data,
-          [key]: value
+        ...prevState.data,
+        [key]: value
       },
       edit: null
-    }))
-  }
-
+    }));
+  };
 }
 
 const styles = StyleSheet.create({  
@@ -182,7 +177,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: 'rgb(82, 124, 161)'
   }
-})
+});
 
 const labels = {
   temp_low: 'TEMP LOW', 
@@ -191,7 +186,7 @@ const labels = {
   warming_phase: 'WARMING PHASE', 
   target: 'TARGET', 
   low_limit: 'LOW LIMIT'
-}
+};
 
 const editable = {
   temp_low: false, 
@@ -200,4 +195,4 @@ const editable = {
   warming_phase: true, 
   target: true, 
   low_limit: true
-}
+};
