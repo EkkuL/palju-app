@@ -13,21 +13,23 @@ import {
 } from 'react-native';
 
 import WheelPickerEdit from './WheelPickerEdit';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const minHeight = 90;
 const maxHeight = 500;
+const confirm = (<Icon name="ios-arrow-round-forward" size={30} color="#7caad0" />);
+const cancel = (<Icon name="ios-close" size={30} color="#7caad0" />);
+
+const pickerValues = {
+  warming_phase: [ ['ON', 'FOFF'] ], 
+  target: [ Array.from({length:25},(v,k)=>k+20), Array.from({length:10},(v,k)=>k) ], 
+  low_limit: [ Array.from({length:25},(v,k)=>k+20), Array.from({length:10},(v,k)=>k) ], 
+};
 
 const { UIManager } = NativeModules;
 
 UIManager.setLayoutAnimationEnabledExperimental &&
   UIManager.setLayoutAnimationEnabledExperimental(true);
-
-const pickerValues = {
-  warming_phase: [['ON', 'FOFF']], 
-  target: [Array.from({length:25},(v,k)=>k+20), Array.from({length:10},(v,k)=>k)], 
-  low_limit: [Array.from({length:25},(v,k)=>k+20), Array.from({length:10},(v,k)=>k)], 
-};
-
 
 export default class MainView extends Component {
 
@@ -37,7 +39,7 @@ export default class MainView extends Component {
     this.state = {
       extended: false,
       height: minHeight,
-      data: {temp_low: 36.7, temp_high: 36.9, temp_ambient: 10.0, warming_phase: 'ON', target: 38.0, low_limit: 36.5, timestamp: 1514764800, estimation: 1514767200},
+      data: {temp_low: '36.7', temp_high: '36.9', temp_ambient: '10.0', warming_phase: 'ON', target: '38.0', low_limit: '36.5', timestamp: 1514764800, estimation: 1514767200},
       updateData: {},
       edit: null
     };
@@ -46,8 +48,7 @@ export default class MainView extends Component {
   render() {
 
     const data = { ...this.state.data };
-
-    const timestamp = new Date(data.timestamp * 1000)
+    const timestamp = new Date(data.timestamp * 1000);
 
     const basicView = (
       <View style={styles.basicView}>
@@ -61,7 +62,7 @@ export default class MainView extends Component {
       </View>
     )
     
-    const extraViewData = { ...data };
+    let extraViewData = { ...data };
     // Don't show twice.
     delete extraViewData.timestamp;
     delete extraViewData.estimation;
@@ -85,9 +86,12 @@ export default class MainView extends Component {
       : (
         <View style={styles.screenContentWrapper}>
           <TouchableWithoutFeedback style={{width: '100%'}} onPress={this.handleExtend}>
-            {basicView}
+            { basicView }
           </TouchableWithoutFeedback>
-          {extraView}
+          { extraView }
+          { Object.keys(this.state.updateData).length > 0 &&
+            this.renderButtons()
+          }
         </View>
       );
 
@@ -100,6 +104,27 @@ export default class MainView extends Component {
     );
   }
 
+  renderButtons = () => {
+    return (
+      <View style={{flex: 1, flexDirection: 'row', paddingLeft: 20, paddingRight: 20, alignItems: 'center', justifyContent: 'space-between'}}>
+        <View style={styles.editButton}>
+          <TouchableNativeFeedback onPress={this.handleCancel}>
+            <View style={styles.editTextWrapper}>
+              <Text style={styles.editText}>{cancel}</Text>
+            </View>
+          </TouchableNativeFeedback> 
+        </View>
+        <View style={styles.editButton}>
+          <TouchableNativeFeedback>
+            <View style={styles.editTextWrapper}>
+              <Text style={styles.editText}>{confirm}</Text>
+            </View>
+          </TouchableNativeFeedback>
+        </View>
+      </View>
+    )
+  }
+
   handleExtend = () => {
     LayoutAnimation.linear();
     this.setState({
@@ -107,6 +132,14 @@ export default class MainView extends Component {
       extended: !this.state.extended
     });
   };
+
+  handleSend = () => {
+    // TODO: Send the update data.
+  }
+
+  handleCancel = () => {
+    this.setState({updateData: {}})
+  }
 
   editValue = (key) => {
     if (!editable[key]) {
@@ -125,13 +158,19 @@ export default class MainView extends Component {
   };
 
   updateValue = (key, value) => {
-    this.setState(prevState => ({
-      updateData: {
-        ...prevState.updateData,
-        [key]: value
-      },
-      edit: null
-    }));
+    if (this.state.data[key] != value) {
+      this.setState(prevState => ({
+        updateData: {
+          ...prevState.updateData,
+          [key]: value
+        },
+        edit: null
+      }));
+    } else {
+      let newUpdateData = { ...this.state.updateData };
+      delete newUpdateData[key]
+      this.setState({updateData: newUpdateData, edit: null })
+    }
   };
 }
 
@@ -183,11 +222,30 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: 'rgb(82, 124, 161)'
   },
+
   textSmall: {
     fontFamily: 'notoserif',
     fontSize: 12,
     color: 'rgb(82, 124, 161)'
-  }
+  },
+
+  editTextWrapper: {
+    alignItems: 'center', 
+    justifyContent: 'center'
+  },
+  
+  editText: {
+      color: '#7caad0',
+      textAlign: 'center'
+  },
+
+  editButton: {
+    margin: 10,
+    height: 30,
+    flex: 1,
+    borderColor: '#7caad0',
+    borderWidth: 1
+  },
 });
 
 const labels = {
