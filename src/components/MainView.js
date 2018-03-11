@@ -22,6 +22,13 @@ const { UIManager } = NativeModules;
 UIManager.setLayoutAnimationEnabledExperimental &&
   UIManager.setLayoutAnimationEnabledExperimental(true);
 
+const pickerValues = {
+  warming_phase: [['ON', 'FOFF']], 
+  target: [Array.from({length:25},(v,k)=>k+20), Array.from({length:10},(v,k)=>k)], 
+  low_limit: [Array.from({length:25},(v,k)=>k+20), Array.from({length:10},(v,k)=>k)], 
+};
+
+
 export default class MainView extends Component {
 
   constructor(props) {
@@ -31,6 +38,7 @@ export default class MainView extends Component {
       extended: false,
       height: minHeight,
       data: {temp_low: 36.7, temp_high: 36.9, temp_ambient: 10.0, warming_phase: 'ON', target: 38.0, low_limit: 36.5, timestamp: 1514764800, estimation: 1514767200},
+      updateData: {},
       edit: null
     };
   }
@@ -62,7 +70,10 @@ export default class MainView extends Component {
       <View key={key} style={styles.extraView}>
         <TouchableWithoutFeedback style={{width: '100%'}} onPress={() => this.editValue(key)}>
           <View>
-            <Text style={[styles.textBig]}>{data[key]}</Text>
+            <View style={{flexDirection: 'row' }}>
+              <View><Text style={[styles.textBig]}>{data[key]}</Text></View>
+              {this.state.updateData[key] && (<View><Text style={[styles.textBig, {color: '#7DA1C2'}]}> {'>> ' + this.state.updateData[key]} </Text></View>)}
+            </View>
             <Text style={[styles.textSmall]}>{labels[key]}</Text>
           </View>
         </TouchableWithoutFeedback>
@@ -70,7 +81,7 @@ export default class MainView extends Component {
     ));
 
     const content = this.state.edit !== null
-      ? <WheelPickerEdit onSave={this.updateValue} onCancel={this.cancelEdit} editKey={this.state.edit} />
+      ? <WheelPickerEdit onSave={this.updateValue} onCancel={this.cancelEdit} editKey={this.state.edit} values={pickerValues[this.state.edit]} />
       : (
         <View style={styles.screenContentWrapper}>
           <TouchableWithoutFeedback style={{width: '100%'}} onPress={this.handleExtend}>
@@ -115,8 +126,8 @@ export default class MainView extends Component {
 
   updateValue = (key, value) => {
     this.setState(prevState => ({
-      data: {
-        ...prevState.data,
+      updateData: {
+        ...prevState.updateData,
         [key]: value
       },
       edit: null

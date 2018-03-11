@@ -12,53 +12,41 @@ import Icon from 'react-native-vector-icons/Ionicons';
 const confirm = (<Icon name="ios-checkmark" size={30} color="#7caad0" />);
 const cancel = (<Icon name="ios-close" size={30} color="#7caad0" />);
 
-const pickerValues = {
-  warming_phase: [['ON', 'FOFF']], 
-  target: [Array.from({length:25},(v,k)=>k+20), Array.from({length:10},(v,k)=>k)], 
-  low_limit: [Array.from({length:25},(v,k)=>k+20), Array.from({length:10},(v,k)=>k)], 
-};
-
 export default class MainView extends Component {
 
     constructor(props) {
       super(props);
 
+      // Select the first values from the provided props as selected values.
+      const values = this.props.values.map(values => { return values[0] })
+
       this.state = {
-        values: [null, null],
+        values: values,
       };
+
+     // this.handleItemSelected = this.handleItemSelected.bind(this);
     }
 
     render() {
 
-      // pickerValues[this.props.editKey].forEach
-
-      let pickers = (
-          <View style={{flex: 2, flexDirection: 'row', paddingLeft: 50, paddingRight: 50}}>
-          <WheelPicker
-            onItemSelected={(event)=>{this.setState((prevState) => ( {values: [event.data, prevState.values[1]]} )) }}
+      let pickers = this.props.values.map((values, idx) => {
+        return <WheelPicker
+            key={idx}
+            onItemSelected={(event) => { this.handleItemSelected(event.data, idx) }}
             isCurved
             renderIndicator
             indicatorColor={'#7caad0'}
             itemTextColor={'#7caad0'}
             itemSpace={20}
-            data={Array.from({length:25},(v,k)=>k+20)}
+            data={values}
             style={{width:50, height: 300, flex: 1}}/>
-          <Text style={{color: '#7caad0', paddingTop:125, fontSize: 35}}>.</Text>
-          <WheelPicker
-            onItemSelected={(event)=>{ this.setState((prevState) => ( {values: [prevState.values[0], event.data]} )) }}
-            isCurved
-            renderIndicator
-            indicatorColor={'#7caad0'}
-            itemTextColor={'#7caad0'}
-            itemSpace={20}
-            data={Array.from({length:10},(v,k)=>k)}
-            style={{width:50, height: 300, flex: 1}}/>
-        </View>
-      )
-
+      });
+  
       return (
           <View style={[styles.screenContentWrapper, {flexDirection: 'column'}]}>
-              {pickers}
+              <View style={{flex: 2, flexDirection: 'row', paddingLeft: 50, paddingRight: 50}}>
+                {pickers}
+              </View>
             <View style={{flex: 1, flexDirection: 'row', paddingLeft: 20, paddingRight: 20, alignItems: 'center', justifyContent: 'space-between'}}>
               <View style={styles.editButton}>
                 <TouchableNativeFeedback style={styles.editButton}  onPress={this.props.onCancel}>
@@ -73,6 +61,13 @@ export default class MainView extends Component {
             </View>
           </View>
         )  
+  }
+
+
+  handleItemSelected(value, index) {
+    let values = this.state.values;
+    values[index] = value;
+    this.setState({values: values});
   }
 }
 
