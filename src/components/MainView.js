@@ -48,6 +48,8 @@ const editable = {
 
 const { UIManager } = NativeModules;
 
+//sconst sync = (<Icon name="ios-sync" size={30} color="#7caad0" />);
+
 UIManager.setLayoutAnimationEnabledExperimental &&
   UIManager.setLayoutAnimationEnabledExperimental(true);
 
@@ -61,7 +63,7 @@ export default class MainView extends Component {
       height: minHeight,
       data: {temp_low: '36.7', temp_high: '36.9', temp_ambient: '10.0', warming_phase: 'ON', target: '38.0', low_limit: '36.5', timestamp: 1514764800, estimation: 1514767200},
       updateData: {},
-      edit: null
+      edit: null,
     };
   }
 
@@ -94,7 +96,7 @@ export default class MainView extends Component {
           <View>
             <View style={{flexDirection: 'row' }}>
               <View><Text style={[styles.textBig]}>{data[key]}</Text></View>
-              {this.state.updateData[key] && (<View><Text style={[styles.textBig, {color: '#7DA1C2'}]}> {'>> ' + this.state.updateData[key]} </Text></View>)}
+              {this.state.updateData[key] && data[key] !== this.state.updateData[key] && (<View><Text style={[styles.textBig, {color: '#7DA1C2'}]}> {'-> ' + this.state.updateData[key]}</Text></View>)}
             </View>
             <Text style={[styles.textSmall]}>{labels[key]}</Text>
           </View>
@@ -114,6 +116,7 @@ export default class MainView extends Component {
             this.renderButtons()
           }
         </View>
+
       );
 
     return (
@@ -166,7 +169,6 @@ export default class MainView extends Component {
     if (!editable[key]) {
       return ToastAndroid.show('This value is not editable.', ToastAndroid.SHORT);
     }
-    
     this.setState({
       edit: key,
     });
@@ -193,6 +195,7 @@ export default class MainView extends Component {
       this.setState({updateData: newUpdateData, edit: null })
     }
   };
+
 }
 
 const styles = StyleSheet.create({  
