@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 
 import WheelPickerEdit from './WheelPickerEdit';
+import BurnerIndicator from './BurnerIndicator'
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const minHeight = 90;
@@ -25,6 +26,25 @@ const pickerValues = {
   target: [ Array.from({length:25},(v,k)=>k+20), Array.from({length:10},(v,k)=>k) ], 
   low_limit: [ Array.from({length:25},(v,k)=>k+20), Array.from({length:10},(v,k)=>k) ], 
 };
+
+const labels = {
+  temp_low: 'TEMP LOW', 
+  temp_high: 'TEMP HIGH', 
+  temp_ambient: 'AMBIENT', 
+  warming_phase: 'WARMING PHASE', 
+  target: 'TARGET', 
+  low_limit: 'LOW LIMIT'
+};
+
+const editable = {
+  temp_low: false, 
+  temp_high: false, 
+  temp_ambient: false, 
+  warming_phase: true, 
+  target: true, 
+  low_limit: true
+};
+
 
 const { UIManager } = NativeModules;
 
@@ -56,7 +76,8 @@ export default class MainView extends Component {
           <Text style={[styles.textBig, {textAlign: 'left'}]}>{timestamp.toLocaleTimeString('fi-FI', {hour: '2-digit', minute: '2-digit'})}</Text>
           <Text style={[styles.textSmall, {textAlign: 'left'}]}>{timestamp.getDate() + '.' + (timestamp.getMonth() + 1) + '.' + timestamp.getFullYear()}</Text>
         </View>
-        <View style={{flex: 1}}>
+        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-end'}}>
+        { this.state.data['warming_phase'] === 'ON' && <BurnerIndicator /> }
           <Text style={[styles.textBig, {textAlign: 'right', fontSize: 32}]}>{data.temp_high + '°C'}</Text>
         </View>
       </View>
@@ -247,21 +268,3 @@ const styles = StyleSheet.create({
     borderWidth: 1
   },
 });
-
-const labels = {
-  temp_low: 'TEMP LOW', 
-  temp_high: 'TEMP HIGH', 
-  temp_ambient: 'AMBIENT', 
-  warming_phase: 'WARMING PHASE', 
-  target: 'TARGET', 
-  low_limit: 'LOW LIMIT'
-};
-
-const editable = {
-  temp_low: false, 
-  temp_high: false, 
-  temp_ambient: false, 
-  warming_phase: true, 
-  target: true, 
-  low_limit: true
-};
