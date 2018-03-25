@@ -20,8 +20,9 @@ import GraphView from './components/GraphView';
 
 import backgroundImage from './assets/background.jpg';
 
-type Props = {};
-export default class App extends Component<Props> {
+import config from '../config'
+
+export default class App extends Component {
 
   constructor(props) {
     super(props);
@@ -32,7 +33,7 @@ export default class App extends Component<Props> {
       graphValues: [] // Values for the graph view.
     };
 
-    this.socket = new WebSocket('ws://89.106.38.236:3000');
+    this.socket = new WebSocket('ws://' + config.websocketAddress, 'mobile');
 
     this.socket.onopen = () => {
       this.setState({
@@ -48,21 +49,32 @@ export default class App extends Component<Props> {
 
     this.socket.onclose = (e) => {
       console.log(e.code, e.reason);
+      this.setState({
+        connected: false,
+      });
     };
   }
 
   receive = (msg) => {
-    if (Array.isArray(msg.data)) { // Array for graph view
+    console.log("Got message: " + msg)
+    console.log(msg.data)
+    
+    const data =  JSON.parse(msg.data);
+
+    if (Array.isArray(data)) { // Array for graph view
 
     } else {
+      console.log("Setting state")
       // New values
       this.setState({
-        values: msg.data,
+        values: data,
       });
     }
   }
 
+  // Expects string
   emit = (message) => {
+    console.log("Emitting message (App.js): " + message )
     this.socket.send(message);
   }
 
@@ -72,7 +84,7 @@ export default class App extends Component<Props> {
         <ImageBackground style={styles.background} source={backgroundImage}>
           <Swiper style={styles.swiper} showButtons={false} showsPagination={false} loop={false}>
             <View style={{flex: 1}}>     
-              <MainView values={this.state.values}/>
+              <MainView values={this.state.values} emit={this.emit} connected={this.state.connected}/>
             </View>
             <View style={{flex: 1}}>     
               <GraphView/>

@@ -9,7 +9,8 @@ import {
   TouchableWithoutFeedback,
   TouchableNativeFeedback,
   ToastAndroid,
-  Button
+  Button,
+  Animated
 } from 'react-native';
 
 import WheelPickerEdit from './WheelPickerEdit';
@@ -57,20 +58,27 @@ export default class MainView extends Component {
 
   constructor(props) {
     super(props);
-
     this.state = {
       extended: false,
-      height: minHeight,
-      data: {temp_low: '36.7', temp_high: '36.9', temp_ambient: '10.0', warming_phase: 'ON', target: '38.0', low_limit: '36.5', timestamp: 1514764800, estimation: 1514767200},
+      height: new Animated.Value(minHeight),
+      // Show some random data for development, if no server connection.
+      data: typeof someVar !== 'undefined' && this.props.keys.length > 0 ? this.props.values : {temp_low: '36.7', temp_high: '36.9', temp_ambient: '10.0', warming_phase: 'ON', target: '38.0', low_limit: '36.5', timestamp: 1514764800, estimation: 1514767200},
       updateData: {},
       edit: null,
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({data: nextProps.values})
   }
 
   render() {
 
     const data = { ...this.state.data };
     const timestamp = new Date(data.timestamp * 1000);
+    let { height } = this.state;
+    console.log
+    console.log(height)
 
     const basicView = (
       <View style={styles.basicView}>
@@ -104,8 +112,9 @@ export default class MainView extends Component {
       </View>
     ));
 
+    console.log("this.state.data[this.state.edit]:" + this.state.data[this.state.edit])
     const content = this.state.edit !== null
-      ? <WheelPickerEdit onSave={this.updateValue} onCancel={this.cancelEdit} editKey={this.state.edit} values={pickerValues[this.state.edit]} />
+      ? <WheelPickerEdit onSave={this.updateValue} onCancel={this.cancelEdit} editKey={this.state.edit} values={pickerValues[this.state.edit]} currentValue={this.state.data[this.state.edit].toString()} />
       : (
         <View style={styles.screenContentWrapper}>
           <TouchableWithoutFeedback style={{width: '100%'}} onPress={this.handleExtend}>
@@ -121,9 +130,9 @@ export default class MainView extends Component {
 
     return (
       <View style={styles.wrapper}>
-        <View style={[styles.screen, {height: this.state.height}]}>
+        <Animated.View style={[{height: this.state.height}, styles.screen]}>
           {content}
-        </View> 
+        </Animated.View> 
       </View>
     );
   }
@@ -139,7 +148,7 @@ export default class MainView extends Component {
           </TouchableNativeFeedback> 
         </View>
         <View style={styles.editButton}>
-          <TouchableNativeFeedback>
+          <TouchableNativeFeedback onPress={this.handleSend}>
             <View style={styles.editTextWrapper}>
               <Text style={styles.editText}>{confirm}</Text>
             </View>
@@ -150,15 +159,23 @@ export default class MainView extends Component {
   }
 
   handleExtend = () => {
-    LayoutAnimation.linear();
-    this.setState({
-      height: this.state.extended ? minHeight : maxHeight, 
-      extended: !this.state.extended
-    });
+
+    Animated.timing(this.state.height, {
+      toValue: this.state.extended ? minHeight : maxHeight,
+      duration: 500
+    }).start(() => { this.setState({ extended: !this.state.extended});})
+
   };
 
   handleSend = () => {
-    // TODO: Send the update data.
+    const { emit } = this.props;
+    const { updateData, data} = this.state;
+    const newData = {...data, ...updateData};
+
+    emit(JSON.stringify(newData));
+
+    this.setState({data: {...newData}})
+
   }
 
   handleCancel = () => {
