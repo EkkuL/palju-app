@@ -79,7 +79,11 @@ export default class GraphView extends Component<Props> {
 
   render() {
 
-    const DashedLine = ({ line }) => (
+    return(
+    <View></View>
+    )
+    
+    /*const DashedLine = ({ line }) => (
       <Path
           key={'line-1'}
           d={line}
@@ -153,7 +157,7 @@ export default class GraphView extends Component<Props> {
           {this.renderButtons()}
         </View>
       </View>
-    )
+    )*/
   }
 
 
