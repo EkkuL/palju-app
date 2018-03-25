@@ -115,7 +115,7 @@ export default class MainView extends Component {
     console.log("this.state.data[this.state.edit]:" + this.state.data[this.state.edit])
     const content = this.state.edit !== null
       ? <WheelPickerEdit onSave={this.updateValue} onCancel={this.cancelEdit}
-      editKey={this.state.edit} values={pickerValues[this.state.edit]} currentValue={this.state.data[this.state.edit]} />
+      editKey={this.state.edit} values={pickerValues[this.state.edit]} currentValue={this.state.data[this.state.edit].toString()} />
       : (
         <View style={styles.screenContentWrapper}>
           <TouchableWithoutFeedback style={{width: '100%'}} onPress={this.handleExtend}>
