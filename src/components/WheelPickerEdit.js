@@ -18,7 +18,7 @@ export default class MainView extends Component {
       super(props);
 
       // Select the first values from the provided props as selected values.
-      const values = this.props.values.map(values => { return values[0] })
+      const values = this.props.currentValue.split('.').map(values => {return isNaN(values) ? values : parseFloat(values) })
 
       this.state = {
         values: values,
@@ -39,7 +39,8 @@ export default class MainView extends Component {
             itemTextColor={'#7caad0'}
             itemSpace={20}
             data={values}
-            style={{width:50, height: 300, flex: 1}}/>
+            style={{width:50, height: 300, flex: 1}}
+            selectedItemPosition={values.indexOf(parseFloat(this.props.currentValue.split('.')[idx]))}/> 
       });
   
       return (
