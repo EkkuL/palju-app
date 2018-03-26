@@ -16,9 +16,10 @@ export default class MainView extends Component {
 
     constructor(props) {
       super(props);
-
+      
+      console.log(this.props.currentValue)
       // Select the first values from the provided props as selected values.
-      const values = this.props.currentValue.split('.').map(values => {return isNaN(values) ? values : parseFloat(values) })
+      const values = this.props.currentValue.split('.').map(value => {return isNaN(value) ? value : parseFloat(value) })
 
       this.state = {
         values: values,
@@ -29,7 +30,10 @@ export default class MainView extends Component {
 
     render() {
 
+
       let pickers = this.props.values.map((values, idx) => {
+        let selectedItemValue = this.props.currentValue.split('.')[idx];
+        selectedItemValue = isNaN(selectedItemValue) ? selectedItemValue : parseFloat(selectedItemValue)
         return <WheelPicker
             key={idx}
             onItemSelected={(event) => { this.handleItemSelected(event.data, idx) }}
@@ -40,7 +44,7 @@ export default class MainView extends Component {
             itemSpace={20}
             data={values}
             style={{width:50, height: 300, flex: 1}}
-            selectedItemPosition={values.indexOf(parseFloat(this.props.currentValue.split('.')[idx]))}/> 
+            selectedItemPosition={values.indexOf(selectedItemValue)}/> 
       });
   
       return (

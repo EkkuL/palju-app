@@ -32,8 +32,11 @@ export default class App extends Component {
       values: {}, // Latest values 
       graphValues: [], // Values for the graph view.
       active: false, // Is the PALJU online or offline
-    };
+      graphValues: [] // Values for the graph view.
+    };   
+  }
 
+  componentDidMount() {
     this.socket = new WebSocket('ws://' + config.websocketAddress, 'mobile');
 
     this.socket.onopen = () => {
@@ -88,14 +91,14 @@ export default class App extends Component {
     return (
       <View style={styles.container}>
         <ImageBackground style={styles.background} source={backgroundImage}>
-          <Swiper style={styles.swiper} showButtons={false} showsPagination={false} loop={false}>
+      {/*    <Swiper style={styles.swiper} showButtons={false} showsPagination={false} loop={false}> */}
             <View style={{flex: 1}}>     
               <MainView values={this.state.values} emit={this.emit} connected={this.state.connected} active={this.state.active}/>
             </View>
             <View style={{flex: 1}}>     
               <GraphView/>
             </View>
-          </Swiper>
+         {/* </Swiper>*/}
         </ImageBackground>
       </View>
     );
