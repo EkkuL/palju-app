@@ -31,8 +31,10 @@ export default class App extends Component {
       connected: false, // Websocket connected
       values: {}, // Latest values 
       graphValues: [] // Values for the graph view.
-    };
+    };   
+  }
 
+  componentDidMount() {
     this.socket = new WebSocket('ws://' + config.websocketAddress, 'mobile');
 
     this.socket.onopen = () => {

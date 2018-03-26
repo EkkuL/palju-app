@@ -175,8 +175,7 @@ export default class MainView extends Component {
 
     emit(JSON.stringify(newData));
 
-    this.setState({data: {...newData}})
-
+    this.setState({data: {...newData}, updateData: {}})
   }
 
   handleCancel = () => {
