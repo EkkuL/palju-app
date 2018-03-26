@@ -58,6 +58,7 @@ export default class MainView extends Component {
 
   constructor(props) {
     super(props);
+    this.animationRunning = false;
     this.state = {
       extended: false,
       height: new Animated.Value(minHeight),
@@ -77,8 +78,6 @@ export default class MainView extends Component {
     const data = { ...this.state.data };
     const timestamp = new Date(data.timestamp * 1000);
     let { height } = this.state;
-    console.log
-    console.log(height)
 
     const basicView = (
       <View style={styles.basicView}>
@@ -112,7 +111,6 @@ export default class MainView extends Component {
       </View>
     ));
 
-    console.log("this.state.data[this.state.edit]:" + this.state.data[this.state.edit])
     const content = this.state.edit !== null
       ? <WheelPickerEdit onSave={this.updateValue} onCancel={this.cancelEdit}
       editKey={this.state.edit} values={pickerValues[this.state.edit]} currentValue={this.state.data[this.state.edit].toString()} />
@@ -160,12 +158,14 @@ export default class MainView extends Component {
   }
 
   handleExtend = () => {
-
-    Animated.timing(this.state.height, {
-      toValue: this.state.extended ? minHeight : maxHeight,
-      duration: 500
-    }).start(() => { this.setState({ extended: !this.state.extended});})
-
+    if (!this.animationRunning){ 
+      this.animationRunning = true;
+      console.log("New anim" + this.animationRunning)
+      Animated.timing(this.state.height, {
+        toValue: this.state.extended ? minHeight : maxHeight,
+        duration: 500
+      }).start(() => { this.setState({ extended: !this.state.extended}); this.animationRunning = false;})
+    }
   };
 
   handleSend = () => {
