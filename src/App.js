@@ -30,18 +30,23 @@ export default class App extends Component {
     this.state = {
       connected: false, // Websocket connected
       values: {}, // Latest values 
-      graphValues: [] // Values for the graph view.
+      graphValues: [], // Values for the graph view.
+      active: false, // Is the PALJU online or offline
     };
 
     this.socket = new WebSocket('ws://' + config.websocketAddress, 'mobile');
 
     this.socket.onopen = () => {
+
       this.setState({
         connected: true,
+        active: false,
       });
     }; 
 
     this.socket.onmessage = this.receive;
+
+
 
     this.socket.onerror = (e) => {
       console.log(e.message);
@@ -68,6 +73,7 @@ export default class App extends Component {
       // New values
       this.setState({
         values: data,
+        active: true,
       });
     }
   }
@@ -84,7 +90,7 @@ export default class App extends Component {
         <ImageBackground style={styles.background} source={backgroundImage}>
           <Swiper style={styles.swiper} showButtons={false} showsPagination={false} loop={false}>
             <View style={{flex: 1}}>     
-              <MainView values={this.state.values} emit={this.emit} connected={this.state.connected}/>
+              <MainView values={this.state.values} emit={this.emit} connected={this.state.connected} active={this.state.active}/>
             </View>
             <View style={{flex: 1}}>     
               <GraphView/>

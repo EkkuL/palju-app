@@ -21,6 +21,7 @@ const minHeight = 90;
 const maxHeight = 500;
 const confirm = (<Icon name="ios-arrow-round-forward" size={30} color="#7caad0" />);
 const cancel = (<Icon name="ios-close" size={30} color="#7caad0" />);
+const sad = (<Icon name="ios-sad" size={60} color="#8ea8be" elevation={4}/>);
 
 const pickerValues = {
   warming_phase: [ ['ON', 'FOFF'] ], 
@@ -82,14 +83,20 @@ export default class MainView extends Component {
 
     const basicView = (
       <View style={styles.basicView}>
-        <View style={{flex: 1}}>
-          <Text style={[styles.textBig, {textAlign: 'left'}]}>{timestamp.toLocaleTimeString('fi-FI', {hour: '2-digit', minute: '2-digit'})}</Text>
-          <Text style={[styles.textSmall, {textAlign: 'left'}]}>{timestamp.getDate() + '.' + (timestamp.getMonth() + 1) + '.' + timestamp.getFullYear()}</Text>
-        </View>
-        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-end'}}>
-        { this.state.data['warming_phase'] === 'ON' && <BurnerIndicator /> }
-          <Text style={[styles.textBig, {textAlign: 'right', fontSize: 32}]}>{data.temp_high + '°C'}</Text>
-        </View>
+        { this.props.active === true &&
+          (<View style={{flex: 1}}>
+            <Text style={[styles.textBig, {textAlign: 'left'}]}>{timestamp.toLocaleTimeString('fi-FI', {hour: '2-digit', minute: '2-digit'})}</Text>
+            <Text style={[styles.textSmall, {textAlign: 'left'}]}>{timestamp.getDate() + '.' + (timestamp.getMonth() + 1) + '.' + timestamp.getFullYear()}</Text>
+          </View>) }
+        { this.props.active === true &&
+          (<View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-end'}}>
+            { this.state.data['warming_phase'] === 'ON' && <BurnerIndicator /> }
+            <Text style={[styles.textBig, {textAlign: 'right', fontSize: 32}]}>{data.temp_high + '°C'}</Text>
+          </View>) }
+        { this.props.active === false &&
+        (<View style={{flex: 1, flexDirection: 'row'}}>
+          <Text style={[styles.textBig, {textAlign: 'left'}]}>{sad}</Text>
+        </View>) }
       </View>
     )
     
@@ -161,11 +168,12 @@ export default class MainView extends Component {
 
   handleExtend = () => {
 
-    Animated.timing(this.state.height, {
-      toValue: this.state.extended ? minHeight : maxHeight,
-      duration: 500
-    }).start(() => { this.setState({ extended: !this.state.extended});})
-
+    if (this.props.active === true) {
+      Animated.timing(this.state.height, {
+        toValue: this.state.extended ? minHeight : maxHeight,
+        duration: 500
+      }).start(() => { this.setState({ extended: !this.state.extended});})
+    }
   };
 
   handleSend = () => {
