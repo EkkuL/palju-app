@@ -71,6 +71,11 @@ export default class App extends Component {
 
     if (Array.isArray(data)) { // Array for graph view
 
+    } 
+    else if (!data.warming_phase){
+      this.setState({
+        active: false,
+      });
     } else {
       console.log("Setting state")
       // New values
