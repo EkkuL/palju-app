@@ -72,6 +72,12 @@ export default class MainView extends Component {
 
   componentWillReceiveProps(nextProps) {
     this.setState({data: nextProps.values})
+
+    if(!nextProps.active && this.state.extended){
+      this.handleExtend()
+      console.log("De-extend")
+      //this.props.active = false;
+    }
   }
 
   render() {
@@ -165,7 +171,7 @@ export default class MainView extends Component {
   }
 
   handleExtend = () => {
-    if (this.props.active === true){
+    if(this.props.active){
       if (!this.animationRunning){ 
         this.animationRunning = true;
         console.log("New anim" + this.animationRunning)

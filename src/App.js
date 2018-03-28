@@ -22,6 +22,8 @@ import backgroundImage from './assets/background.jpg';
 
 import config from '../config'
 
+import moment from 'moment'
+
 export default class App extends Component {
 
   constructor(props) {
@@ -32,11 +34,12 @@ export default class App extends Component {
       values: {}, // Latest values 
       graphValues: [], // Values for the graph view.
       active: false, // Is the PALJU online or offline
-      graphValues: [] // Values for the graph view.
+      graphValues: [], // Values for the graph view.
     };   
   }
 
   componentDidMount() {
+
     this.socket = new WebSocket('ws://' + config.websocketAddress, 'mobile');
 
     this.socket.onopen = () => {
@@ -49,8 +52,6 @@ export default class App extends Component {
 
     this.socket.onmessage = this.receive;
 
-
-
     this.socket.onerror = (e) => {
       console.log(e.message);
     };
@@ -61,6 +62,21 @@ export default class App extends Component {
         connected: false,
       });
     };
+
+    setInterval( () => {
+      console.log(this.state.values.timestamp)
+        if(this.state.values.timestamp + 60 < moment().unix()){
+          this.setState({
+          active: false
+          });
+        }
+        else{
+          this.setState({
+            active: true
+            });
+        }
+    },5000)
+
   }
 
   receive = (msg) => {
@@ -74,6 +90,7 @@ export default class App extends Component {
     } 
     else if (!data.warming_phase){
       this.setState({
+        values: data,
         active: false,
       });
     } else {
@@ -81,7 +98,6 @@ export default class App extends Component {
       // New values
       this.setState({
         values: data,
-        active: true,
       });
     }
   }
