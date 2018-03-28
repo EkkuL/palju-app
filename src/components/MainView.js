@@ -21,7 +21,7 @@ const minHeight = 90;
 const maxHeight = 500;
 const confirm = (<Icon name="ios-arrow-round-forward" size={30} color="#7caad0" />);
 const cancel = (<Icon name="ios-close" size={30} color="#7caad0" />);
-const sad = (<Icon name="ios-sad" size={60} color="#8ea8be" elevation={4}/>);
+const sad = (<Icon name="ios-sad" size={30} color="#8ea8be" elevation={4}/>);
 
 const pickerValues = {
   warming_phase: [ ['ON', 'FOFF'] ], 
@@ -100,7 +100,7 @@ export default class MainView extends Component {
           </View>) }
         { this.props.active === false &&
         (<View style={{flex: 1, flexDirection: 'row'}}>
-          <Text style={[styles.textBig, {textAlign: 'left'}]}>{sad}</Text>
+          <Text style={[styles.textBig, {textAlign: 'right'}]}>Palju is offline {sad}</Text>
         </View>) }
       </View>
     )
