@@ -12,11 +12,13 @@ import {
   Button,
   Animated
 } from 'react-native';
+import moment from 'moment'
+import Icon from 'react-native-vector-icons/Ionicons';
+import EntypoIcon from 'react-native-vector-icons/Entypo';
+
 
 import WheelPickerEdit from './WheelPickerEdit';
 import BurnerIndicator from './BurnerIndicator'
-import Icon from 'react-native-vector-icons/Ionicons';
-import EntypoIcon from 'react-native-vector-icons/Entypo';
 
 const minHeight = 90;
 const maxHeight = 500;
@@ -158,13 +160,14 @@ export default class MainView extends Component {
 
   renderBasicView = () => {
     const data = { ...this.state.data };
-    const timestamp = new Date(data.timestamp * 1000);
+    const timestamp = moment(data.timestamp * 1000);
 
+    console.log(timestamp)
     return (
       <View style={styles.basicView}>
         <View style={{flex: 1}}>
-          <Text style={[styles.textBig, {textAlign: 'left'}]}>{timestamp.toLocaleTimeString('fi-FI', {hour: '2-digit', minute: '2-digit'})}</Text>
-          <Text style={[styles.textSmall, {textAlign: 'left'}]}>{timestamp.getDate() + '.' + (timestamp.getMonth() + 1) + '.' + timestamp.getFullYear()}</Text>
+          <Text style={[styles.textBig, {textAlign: 'left'}]}>{timestamp.format('HH:mm')}</Text>
+          <Text style={[styles.textSmall, {textAlign: 'left'}]}>{timestamp.format('DD.MM.YY')}</Text> 
         </View> 
         <View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-end'}}>
           { this.state.data['warming_phase'] === 'ON' && <BurnerIndicator /> }

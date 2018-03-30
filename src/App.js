@@ -44,19 +44,7 @@ export default class App extends Component {
 
     // If the received data is not 
     this.connectionCheckIntervalId = setInterval( () => {
-        if(this.state.values.timestamp + 180 > moment().unix()) {
-          console.log("asdsad")
-          this.setState({
-            active: true
-          });
-        }
-        //  else {
-        //   if (!this.state.active) {
-        //     this.setState({
-        //       active: true
-        //     });
-        //   } 
-        // }
+      this.checkDataValidity(this.state.values);
     }, 5000)
 
   }
@@ -92,6 +80,21 @@ export default class App extends Component {
     };
   }
 
+  checkDataValidity = (values) => {
+    if(values.timestamp + 180 > moment().unix()) {
+      console.log("asdsad")
+      this.setState({
+        active: true
+      });
+    } else if (Object.keys(values).length > 0) {
+       if (this.state.active) {
+         this.setState({
+           active: false
+         });
+       } 
+    }
+  }
+
   receive = (msg) => {
     console.log("Got message: " + msg)
     console.log(msg.data)
@@ -109,9 +112,10 @@ export default class App extends Component {
       console.log("Setting state")
       // New values
       this.setState({
-        values: data,
-        active: true
+        values: data
       });
+
+      this.checkDataValidity(data);
     }
   }
 
