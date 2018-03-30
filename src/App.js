@@ -40,6 +40,33 @@ export default class App extends Component {
 
   componentDidMount() {
 
+    this.connect();
+
+    // If the received data is not 
+    this.connectionCheckIntervalId = setInterval( () => {
+        if(this.state.values.timestamp + 180 > moment().unix()) {
+          console.log("asdsad")
+          this.setState({
+            active: true
+          });
+        }
+        //  else {
+        //   if (!this.state.active) {
+        //     this.setState({
+        //       active: true
+        //     });
+        //   } 
+        // }
+    }, 5000)
+
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.connectionCheckIntervalId);
+    clearTimeout(this.reconnectTimeoutId);
+  }
+
+  connect = () => {
     this.socket = new WebSocket('ws://' + config.websocketAddress, 'mobile');
 
     this.socket.onopen = () => {
@@ -48,6 +75,7 @@ export default class App extends Component {
         connected: true,
         active: false,
       });
+
     }; 
 
     this.socket.onmessage = this.receive;
@@ -57,26 +85,11 @@ export default class App extends Component {
     };
 
     this.socket.onclose = (e) => {
-      console.log(e.code, e.reason);
+      this.reconnectTimeoutId = setTimeout(this.connect, 10000) // Try to reconnect in 10 seconds
       this.setState({
         connected: false,
       });
     };
-
-    setInterval( () => {
-      console.log(this.state.values.timestamp)
-        if(this.state.values.timestamp + 60 < moment().unix()){
-          this.setState({
-          active: false
-          });
-        }
-        else{
-          this.setState({
-            active: true
-            });
-        }
-    },5000)
-
   }
 
   receive = (msg) => {
@@ -87,8 +100,7 @@ export default class App extends Component {
 
     if (Array.isArray(data)) { // Array for graph view
 
-    } 
-    else if (!data.warming_phase){
+    } else if (Object.keys(data).length === 0){
       this.setState({
         values: data,
         active: false,
@@ -98,6 +110,7 @@ export default class App extends Component {
       // New values
       this.setState({
         values: data,
+        active: true
       });
     }
   }

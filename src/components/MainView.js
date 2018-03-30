@@ -16,12 +16,13 @@ import {
 import WheelPickerEdit from './WheelPickerEdit';
 import BurnerIndicator from './BurnerIndicator'
 import Icon from 'react-native-vector-icons/Ionicons';
+import EntypoIcon from 'react-native-vector-icons/Entypo';
 
 const minHeight = 90;
 const maxHeight = 500;
 const confirm = (<Icon name="ios-arrow-round-forward" size={30} color="#7caad0" />);
 const cancel = (<Icon name="ios-close" size={30} color="#7caad0" />);
-const sad = (<Icon name="ios-sad" size={30} color="#8ea8be" elevation={4}/>);
+const sad = (<EntypoIcon name="emoji-sad" size={26} color="#8ea8be" elevation={4}/>);
 
 const pickerValues = {
   warming_phase: [ ['ON', 'FOFF'] ], 
@@ -86,24 +87,9 @@ export default class MainView extends Component {
     const timestamp = new Date(data.timestamp * 1000);
     let { height } = this.state;
 
-    const basicView = (
-      <View style={styles.basicView}>
-        { this.props.active === true &&
-          (<View style={{flex: 1}}>
-            <Text style={[styles.textBig, {textAlign: 'left'}]}>{timestamp.toLocaleTimeString('fi-FI', {hour: '2-digit', minute: '2-digit'})}</Text>
-            <Text style={[styles.textSmall, {textAlign: 'left'}]}>{timestamp.getDate() + '.' + (timestamp.getMonth() + 1) + '.' + timestamp.getFullYear()}</Text>
-          </View>) }
-        { this.props.active === true &&
-          (<View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-end'}}>
-            { this.state.data['warming_phase'] === 'ON' && <BurnerIndicator /> }
-            <Text style={[styles.textBig, {textAlign: 'right', fontSize: 32}]}>{data.temp_high + '°C'}</Text>
-          </View>) }
-        { this.props.active === false &&
-        (<View style={{flex: 1, flexDirection: 'row'}}>
-          <Text style={[styles.textBig, {textAlign: 'right'}]}>Palju is offline {sad}</Text>
-        </View>) }
-      </View>
-    )
+    let basicView = (this.props.active && this.props.connected) ? this.renderBasicView() : this.renderOffline();
+
+
     
     let extraViewData = { ...data };
     // Don't show twice.
@@ -169,6 +155,37 @@ export default class MainView extends Component {
       </View>
     )
   }
+
+  renderBasicView = () => {
+    const data = { ...this.state.data };
+    const timestamp = new Date(data.timestamp * 1000);
+
+    return (
+      <View style={styles.basicView}>
+        <View style={{flex: 1}}>
+          <Text style={[styles.textBig, {textAlign: 'left'}]}>{timestamp.toLocaleTimeString('fi-FI', {hour: '2-digit', minute: '2-digit'})}</Text>
+          <Text style={[styles.textSmall, {textAlign: 'left'}]}>{timestamp.getDate() + '.' + (timestamp.getMonth() + 1) + '.' + timestamp.getFullYear()}</Text>
+        </View> 
+        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-end'}}>
+          { this.state.data['warming_phase'] === 'ON' && <BurnerIndicator /> }
+          <Text style={[styles.textBig, {textAlign: 'right', fontSize: 32}]}>{data.temp_high + '°C'}</Text>
+        </View>
+      </View>
+    )
+  }
+
+  renderOffline = () => {
+    return (
+      <View style={styles.basicView}>
+        <View style={{flex: 1, flexDirection: 'column', alignItems: 'center'}}>
+          {sad}
+          <Text style={[styles.textMedium, {textAlign: 'center'}]}>Palju is offline </Text>
+        </View>  
+      </View>
+    )
+  }
+
+
 
   handleExtend = () => {
     if(this.props.active){
@@ -276,6 +293,12 @@ const styles = StyleSheet.create({
   textBig: {
     fontFamily: 'notoserif',
     fontSize: 20,
+    color: 'rgb(82, 124, 161)'
+  },
+
+  textMedium: {
+    fontFamily: 'notoserif',
+    fontSize: 16,
     color: 'rgb(82, 124, 161)'
   },
 
