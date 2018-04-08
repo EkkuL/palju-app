@@ -17,7 +17,6 @@ export default class MainView extends Component {
     constructor(props) {
       super(props);
       
-      console.log(this.props.currentValue)
       // Select the first values from the provided props as selected values.
       const values = this.props.currentValue.split('.').map(value => {return isNaN(value) ? value : parseFloat(value) })
 

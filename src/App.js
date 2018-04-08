@@ -13,13 +13,7 @@ import {
   View
 } from 'react-native';
 
-import Swiper from 'react-native-swiper'
-
-import MainView from './components/MainView';
-import GraphView from './components/GraphView';
-
-import backgroundImage from './assets/background.jpg';
-
+import MainView from './containers/MainView';
 import config from '../config'
 
 import moment from 'moment'
@@ -128,16 +122,7 @@ export default class App extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <ImageBackground style={styles.background} source={backgroundImage}>
-      {/*    <Swiper style={styles.swiper} showButtons={false} showsPagination={false} loop={false}> */}
-            <View style={{flex: 1}}>     
-              <MainView values={this.state.values} emit={this.emit} connected={this.state.connected} active={this.state.active}/>
-            </View>
-            <View style={{flex: 1}}>     
-              <GraphView/>
-            </View>
-         {/* </Swiper>*/}
-        </ImageBackground>
+        <MainView values={this.state.values} emit={this.emit} connected={this.state.connected} active={this.state.active}/>
       </View>
     );
   }
@@ -146,14 +131,5 @@ export default class App extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  swiper: {
-    flex: 1,
-  },
-  background: {
-    flex: 1,
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
   },
 });

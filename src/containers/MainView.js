@@ -10,13 +10,18 @@ import {
   TouchableNativeFeedback,
   ToastAndroid,
   Button,
+  ImageBackground,
   Animated
 } from 'react-native';
+import { StackNavigator } from 'react-navigation';
+
 import moment from 'moment'
 import Icon from 'react-native-vector-icons/Ionicons';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 
+import backgroundImage from '../assets/background.jpg';
 
+import GraphView from './GraphView';
 import WheelPickerEdit from './WheelPickerEdit';
 import BurnerIndicator from './BurnerIndicator'
 
@@ -58,7 +63,7 @@ const { UIManager } = NativeModules;
 UIManager.setLayoutAnimationEnabledExperimental &&
   UIManager.setLayoutAnimationEnabledExperimental(true);
 
-export default class MainView extends Component {
+class MainView extends Component {
 
   constructor(props) {
     super(props);
@@ -117,7 +122,7 @@ export default class MainView extends Component {
       editKey={this.state.edit} values={pickerValues[this.state.edit]} currentValue={this.state.data[this.state.edit].toString()} />
       : (
         <View style={styles.screenContentWrapper}>
-          <TouchableWithoutFeedback style={{width: '100%'}} onPress={this.handleExtend}>
+          <TouchableWithoutFeedback style={{width: '100%'}} onPress={this.handleExtend} onLongPress={this.handleLongPress}>
             { basicView }
           </TouchableWithoutFeedback>
           { extraView }
@@ -129,11 +134,13 @@ export default class MainView extends Component {
       );
 
     return (
-      <View style={styles.wrapper}>
-        <Animated.View style={[{height: this.state.height}, styles.screen]}>
-          {content}
-        </Animated.View> 
-      </View>
+      <ImageBackground style={styles.background} source={backgroundImage}>
+        <View style={styles.wrapper}>
+          <Animated.View style={[{height: this.state.height}, styles.screen]}>
+            {content}
+          </Animated.View> 
+        </View>
+      </ImageBackground>
     );
   }
 
@@ -203,6 +210,11 @@ export default class MainView extends Component {
     }
   };
 
+  handleLongPress = () => {
+    console.log("Long press")
+    this.props.navigation.navigate('Graph')
+  }
+
   handleSend = () => {
     const { emit } = this.props;
     const { updateData, data} = this.state;
@@ -250,6 +262,19 @@ export default class MainView extends Component {
 
 }
 
+
+export default StackNavigator({
+  Main: {
+    screen: MainView,
+  },
+  Graph: {
+    screen: GraphView
+  },
+},
+{
+  headerMode: 'none',
+});
+
 const styles = StyleSheet.create({  
   wrapper: {
     flex: 1,
@@ -258,6 +283,13 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
     paddingLeft: 20,
     paddingRight: 20
+  },
+
+  background: {
+    flex: 1,
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
   },
 
   screen: {
