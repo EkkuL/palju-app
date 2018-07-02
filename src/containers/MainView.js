@@ -11,39 +11,49 @@ import {
   ToastAndroid,
   Button,
   ImageBackground,
-  Animated
+  Animated,
+  Image,
+  ScrollView
 } from 'react-native';
-import { StackNavigator } from 'react-navigation';
+
 
 import moment from 'moment'
 import Icon from 'react-native-vector-icons/Ionicons';
+import config from '../../config'
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 
 import backgroundImage from '../assets/background.jpg';
 
-import GraphView from './GraphView';
-import WheelPickerEdit from './WheelPickerEdit';
-import BurnerIndicator from './BurnerIndicator'
+import GraphSelectionView from './GraphSelectionView';
+
+import InformationRow from '../components/InformationRow';
+//import WheelPickerEdit from '../components/WheelPickerEdit';
+//import BurnerIndicator from '../components/BurnerIndicator';
+//import {ImageHeader} from '../components/ImageHeader';
 
 const minHeight = 90;
 const maxHeight = 500;
 const confirm = (<Icon name="ios-arrow-round-forward" size={30} color="#7caad0" />);
 const cancel = (<Icon name="ios-close" size={30} color="#7caad0" />);
-const sad = (<EntypoIcon name="emoji-sad" size={26} color="#8ea8be" elevation={4}/>);
+const graphIcon = (<EntypoIcon name="line-graph" size={25} color="#ddd" />);
+const infoIcon = (<EntypoIcon name="info-with-circle" size={25} color="#ddd" />);
+//const sad = (<EntypoIcon name="emoji-sad" size={26} color="#8ea8be" elevation={4}/>);
 
-const pickerValues = {
+/*const pickerValues = {
   warming_phase: [ ['ON', 'FOFF'] ], 
   target: [ Array.from({length:25},(v,k)=>k+20), Array.from({length:10},(v,k)=>k) ], 
   low_limit: [ Array.from({length:25},(v,k)=>k+20), Array.from({length:10},(v,k)=>k) ], 
-};
+};*/
+
 
 const labels = {
-  temp_low: 'TEMP LOW', 
+  temp_low: 'LOW', 
   temp_high: 'TEMP HIGH', 
   temp_ambient: 'AMBIENT', 
   warming_phase: 'WARMING PHASE', 
   target: 'TARGET', 
-  low_limit: 'LOW LIMIT'
+  low_limit: 'LIMIT',
+  egt: 'EGT'
 };
 
 const editable = {
@@ -56,196 +66,234 @@ const editable = {
 };
 
 
-const { UIManager } = NativeModules;
-
+/* const { UIManager } = NativeModules;
+ */
 //sconst sync = (<Icon name="ios-sync" size={30} color="#7caad0" />);
 
-UIManager.setLayoutAnimationEnabledExperimental &&
+/* UIManager.setLayoutAnimationEnabledExperimental &&
   UIManager.setLayoutAnimationEnabledExperimental(true);
+ */
 
-class MainView extends Component {
+const CONNECTION_STATUSES = {
+  connecting: 'CONNECTING',
+  connected: 'CONNECTED',
+  reconnecting: 'RECONNECTING'
+}
+
+const STATUS_LABELS = {
+  FOFF: 'TURNING OFF',
+  OFF: 'SHUTDOWN',
+  ON: 'WARMING UP',
+  UPKEEP: 'UPKEEP'
+}
+
+export default class MainView extends Component {
 
   constructor(props) {
     super(props);
-    this.animationRunning = false;
+
+    this._socket = undefined;
+
     this.state = {
-      extended: false,
-      height: new Animated.Value(minHeight),
-      // Show some random data for development, if no server connection.
-      data: typeof someVar !== 'undefined' && this.props.keys.length > 0 ? this.props.values : {temp_low: '36.7', temp_high: '36.9', temp_ambient: '10.0', warming_phase: 'ON', target: '38.0', low_limit: '36.5', timestamp: 1514764800, estimation: 1514767200},
-      updateData: {},
-      edit: null,
+      connectionStatus: CONNECTION_STATUSES.connecting,
+      connectionAnimationDone: false,
+      values: {}
+    };
+
+  }
+
+  
+  connect = () => {
+    this._socket = new WebSocket('ws://' + config.websocketAddress, 'mobile');
+
+    this._socket.onopen = () => {
+      this.setState({ connectionStatus: CONNECTION_STATUSES.connected });
+    };
+
+    this._socket.onmessage = this.receive;
+
+    this._socket.onerror = (e) => {
+      console.log(e.message);
+    };
+
+    this._socket.onclose = (e) => {
+      this.reconnectTimeoutId = setTimeout(this.connect, 10000) // Try to reconnect in 10 seconds
+      this.setState({
+        connectionStatus: CONNECTION_STATUSES.reconnecting,
+      });
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({data: nextProps.values})
-
-    if(!nextProps.active && this.state.extended){
-      this.handleExtend()
-      console.log("De-extend")
-      //this.props.active = false;
-    }
+  componentWillMount() {
+    this.connect();
+  }
+  
+  componentWillUnmount() {
+    this._socket.close();
+    clearTimeout(this.reconnectTimeoutId);
   }
 
   render() {
-
-    const data = { ...this.state.data };
-    const timestamp = new Date(data.timestamp * 1000);
-    let { height } = this.state;
-
-    let basicView = (this.props.active && this.props.connected) ? this.renderBasicView() : this.renderOffline();
-
-
-    
-    let extraViewData = { ...data };
-    // Don't show twice.
-    delete extraViewData.timestamp;
-    delete extraViewData.estimation;
-
-    const extraView = Object.keys(extraViewData).map(key => (
-      <View key={key} style={styles.extraView}>
-        <TouchableWithoutFeedback style={{width: '100%'}} onPress={() => this.editValue(key)}>
-          <View>
-            <View style={{flexDirection: 'row' }}>
-              <View><Text style={[styles.textBig]}>{data[key]}</Text></View>
-              {this.state.updateData[key] && data[key] !== this.state.updateData[key] && (<View><Text style={[styles.textBig, {color: '#7DA1C2'}]}> {'-> ' + this.state.updateData[key]}</Text></View>)}
-            </View>
-            <Text style={[styles.textSmall]}>{labels[key]}</Text>
-          </View>
-        </TouchableWithoutFeedback>
-      </View>
-    ));
-
-    const content = this.state.edit !== null
-      ? <WheelPickerEdit onSave={this.updateValue} onCancel={this.cancelEdit}
-      editKey={this.state.edit} values={pickerValues[this.state.edit]} currentValue={this.state.data[this.state.edit].toString()} />
-      : (
-        <View style={styles.screenContentWrapper}>
-          <TouchableWithoutFeedback style={{width: '100%'}} onPress={this.handleExtend} onLongPress={this.handleLongPress}>
-            { basicView }
-          </TouchableWithoutFeedback>
-          { extraView }
-          { Object.keys(this.state.updateData).length > 0 &&
-            this.renderButtons()
-          }
-        </View>
-
-      );
+    const { connected, connectionAnimationDone } = this.state;
+    console.log(this.state)
 
     return (
       <ImageBackground style={styles.background} source={backgroundImage}>
-        <View style={styles.wrapper}>
-          <Animated.View style={[{height: this.state.height}, styles.screen]}>
-            {content}
-          </Animated.View> 
-        </View>
+        <ScrollView style={{flex: 1}}>
+          { this.renderButtons() }
+          { (connected == CONNECTION_STATUSES.connecting || !connectionAnimationDone) ? this.renderConnecting() : this.renderInformationRows() }
+        </ScrollView>
       </ImageBackground>
-    );
+
+    )
+    
   }
+
+
+  renderConnecting = () => {
+    return (
+      <InformationRow 
+        label={'CONNECTING...'} 
+        animated={true}
+        value={' '}
+        style={{flex: 1, marginTop: 0, marginLeft: 20, marginRight: 20}}
+        labelTextStyle={{fontSize: 22}}
+        valueTextStyle={{fontSize: 52}}
+        finishedCallback={() => {
+          console.log("Callback")
+          this.setState({connectionAnimationDone: true})
+        }}
+      />
+    )
+  }
+
+  renderInformationRows = () => {
+    const { values } = this.state;
+
+    return (
+      <View style={{flexDirection: 'column'}}>
+        < InformationRow
+          label={STATUS_LABELS[values.warming_phase]}
+          style={{marginTop: 0, marginLeft: 20, marginRight: 20}}
+          labelTextStyle={{fontSize: 22}}
+          value={values.temp_high + '°C'}
+          valueTextStyle={{fontSize: 52}}
+        />
+        <InformationRow
+          label={'LOW'}
+          style={styles.smallInfo}
+          labelTextStyle={styles.smallInfoLabel}
+          value={values.temp_low + '°C'}
+          valueTextStyle={styles.smallInfoValue}
+        />
+        <InformationRow
+          label={'AMBIENT'}
+          style={styles.smallInfo}
+          labelTextStyle={styles.smallInfoLabel}
+          value={values.temp_ambient + '°C'}
+          valueTextStyle={styles.smallInfoValue}
+        />
+        <InformationRow
+          label={'ESTIMATE'}
+          style={styles.smallInfo}
+          labelTextStyle={styles.smallInfoLabel}
+          value={moment(values.estimation, 'X').format('HH:mm')}
+          valueTextStyle={styles.smallInfoValue}
+        />
+        <InformationRow
+          label={'EGT'}
+          style={styles.smallInfo}
+          labelTextStyle={styles.smallInfoLabel}
+          value={values.egt + ( values.egt ? '°C' : '' ) }
+          valueTextStyle={styles.smallInfoValue}
+        />
+        <InformationRow
+          label={'LIMIT'}
+          style={styles.smallInfo}
+          labelTextStyle={styles.smallInfoLabel}
+          value={values.low_limit + '°C'}
+          valueTextStyle={styles.smallInfoValue}
+        />
+        <InformationRow
+          label={'TARGET'}
+          style={styles.smallInfo}
+          labelTextStyle={styles.smallInfoLabel}
+          value={values.target  + '°C'}
+          valueTextStyle={styles.smallInfoValue}
+        />
+      </View>
+    )
+  }
+
 
   renderButtons = () => {
-    return (
-      <View style={{flex: 1, flexDirection: 'row', paddingLeft: 20, paddingRight: 20, alignItems: 'center', justifyContent: 'space-between'}}>
-        <View style={styles.editButton}>
-          <TouchableNativeFeedback onPress={this.handleCancel}>
-            <View style={styles.editTextWrapper}>
-              <Text style={styles.editText}>{cancel}</Text>
-            </View>
-          </TouchableNativeFeedback> 
-        </View>
-        <View style={styles.editButton}>
-          <TouchableNativeFeedback onPress={this.handleSend}>
-            <View style={styles.editTextWrapper}>
-              <Text style={styles.editText}>{confirm}</Text>
-            </View>
-          </TouchableNativeFeedback>
-        </View>
-      </View>
-    )
-  }
 
-  renderBasicView = () => {
-    const data = { ...this.state.data };
-    const timestamp = moment(data.timestamp * 1000);
-
-    console.log(timestamp)
     return (
-      <View style={styles.basicView}>
-        <View style={{flex: 1}}>
-          <Text style={[styles.textBig, {textAlign: 'left'}]}>{timestamp.format('HH:mm')}</Text>
-          <Text style={[styles.textSmall, {textAlign: 'left'}]}>{timestamp.format('DD.MM.YY')}</Text> 
-        </View> 
-        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-end'}}>
-          { this.state.data['warming_phase'] === 'ON' && <BurnerIndicator /> }
-          <Text style={[styles.textBig, {textAlign: 'right', fontSize: 32}]}>{data.temp_high + '°C'}</Text>
-        </View>
-      </View>
-    )
-  }
-
-  renderOffline = () => {
-    return (
-      <View style={styles.basicView}>
-        <View style={{flex: 1, flexDirection: 'column', alignItems: 'center'}}>
-          {sad}
-          <Text style={[styles.textMedium, {textAlign: 'center'}]}>Palju is offline </Text>
-        </View>  
+      <View style={{height: 50, marginTop: 10, flexDirection: 'row', justifyContent: 'flex-end'}}>
+        <TouchableNativeFeedback onPress={() => {this.props.navigation.navigate('GraphSelection')}}>
+          <View style={styles.navButton}>
+            {graphIcon}
+          </View>
+        </TouchableNativeFeedback>
+        <TouchableNativeFeedback onPress={() => {this.props.navigation.navigate('GraphSelection')}}>
+          <View style={styles.navButton} >
+            {infoIcon}
+          </View>
+        </TouchableNativeFeedback>
       </View>
     )
   }
 
 
-
-  handleExtend = () => {
-    if(this.props.active){
-      if (!this.animationRunning){ 
-        this.animationRunning = true;
-        console.log("New anim" + this.animationRunning)
-        Animated.timing(this.state.height, {
-          toValue: this.state.extended ? minHeight : maxHeight,
-          duration: 500
-        }).start(() => { this.setState({ extended: !this.state.extended}); this.animationRunning = false;})
-      }
+  checkDataValidity = (values) => {
+    if(values.timestamp + 180 > moment().unix()) {
+      console.log("asdsad")
+      this.setState({
+        active: true
+      });
+    } else if (Object.keys(values).length > 0) {
+       if (this.state.active) {
+      //   this.setState({
+      //     active: false
+      //   });
+       } 
     }
-  };
+  }
 
-  handleLongPress = () => {
-    console.log("Long press")
-    this.props.navigation.navigate('Graph')
+  receive = (msg) => {
+    console.log("Got message: " + msg)
+    console.log(msg.data)
+    
+    const data =  JSON.parse(msg.data);
+
+    if (Object.keys(data).length > 0){
+      this.setState({
+        values: data
+      });
+    }
+  }
+
+  // Expects string
+  emit = (message) => {
+    console.log("Emitting message (App.js): " + message )
+    this._socket.send(message);
   }
 
   handleSend = () => {
-    const { emit } = this.props;
-    const { updateData, data} = this.state;
+    const { updateData, data } = this.state;
     const newData = {...data, ...updateData};
 
-    emit(JSON.stringify(newData));
+    this.emit(JSON.stringify(newData));
 
     this.setState({data: {...newData}, updateData: {}})
   }
 
   handleCancel = () => {
-    this.setState({updateData: {}})
+     this.setState({updateData: {}})
   }
 
-  editValue = (key) => {
-    if (!editable[key]) {
-      return ToastAndroid.show('This value is not editable.', ToastAndroid.SHORT);
-    }
-    this.setState({
-      edit: key,
-    });
-  };
-
-  cancelEdit = () => {
-    this.setState({
-      edit: null,
-    });
-  };
-
   updateValue = (key, value) => {
-    if (this.state.data[key] != value) {
+   /*  if (this.state.data[key] != value) {
       this.setState(prevState => ({
         updateData: {
           ...prevState.updateData,
@@ -257,23 +305,11 @@ class MainView extends Component {
       let newUpdateData = { ...this.state.updateData };
       delete newUpdateData[key]
       this.setState({updateData: newUpdateData, edit: null })
-    }
+    } */
   };
 
 }
 
-
-export default StackNavigator({
-  Main: {
-    screen: MainView,
-  },
-  Graph: {
-    screen: GraphView
-  },
-},
-{
-  headerMode: 'none',
-});
 
 const styles = StyleSheet.create({  
   wrapper: {
@@ -282,7 +318,36 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     paddingBottom: 30,
     paddingLeft: 20,
-    paddingRight: 20
+    paddingRight: 20,
+    backgroundColor: '#CCC'
+  },
+
+  navButton: {
+    width: 50, 
+    height: 50, 
+    marginRight: 10, 
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    opacity: 1, 
+    borderRadius: 3, 
+    borderColor: '#000', 
+    borderWidth: 2,
+    paddingTop: 10,
+    paddingLeft: 10,
+    opacity: 0.9
+  },
+
+  smallInfoLabel: {
+    fontSize: 14
+  },
+  
+  smallInfoValue: {
+    fontSize: 26
+  },
+
+  smallInfo: {
+    width: '45%',
+    marginTop: 10,
+    marginLeft: 20
   },
 
   background: {
