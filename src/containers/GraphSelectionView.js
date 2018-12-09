@@ -7,7 +7,8 @@ import {
   FlatList,
   View,
   ImageBackground,
-  TouchableNativeFeedback
+  TouchableNativeFeedback,
+  ActivityIndicator
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import moment from 'moment'
@@ -31,35 +32,46 @@ export default class GraphSelectionView extends Component {
     }
   }
 
-  componentWillMount(){
+  componentDidMount(){
+    console.log("Load")
     this.setState({loading: true});
 
     Api.fetchInstanceList((data) => { 
+      console.log("GOT IT")
       this.setState({
-        values: data.map((value, index) => { return {...value, selected: false, loading: false}})
+        values: data.map((value, index) => { return {...value, selected: false}}),
+        loading: false
       });
     });
   }
 
   render() {
-    const { values, multiSelect } = this.state;
+    console.log("Render")
+    console.log(this.state)
+    const { values, multiSelect, loading } = this.state;
 
-    return (
-      <ImageBackground style={styles.background} source={backgroundImage}>
-        <View style={styles.container}>
-          <FlatList 
-            data={values}
-            renderItem={this.renderListItem}
-            keyExtractor={(item, index) => (index).toString()}
-          />
-          { multiSelect && 
-            <TouchableNativeFeedback onPress={() => { this.props.navigation.navigate('Graph') }}>
-              <Text style={styles.bottomButtonText}> Show </Text>
-            </TouchableNativeFeedback>
-          }
-        </View>
-      </ImageBackground>
-    )
+      return (
+        <ImageBackground style={styles.background} source={backgroundImage}>
+          <View style={styles.container}>
+            { loading ? 
+              (<ActivityIndicator size={40} color="#299BFF" />)  
+              : 
+              (<FlatList 
+                data={values}
+                renderItem={this.renderListItem}
+                keyExtractor={(item, index) => (index).toString()}
+              />)
+            }
+            { multiSelect && 
+              <TouchableNativeFeedback onPress={() => { this.props.navigation.navigate('Graph',  {dates: values.filter(val => val.selected)}) }}>
+                <Text style={styles.bottomButtonText}> Show </Text>
+              </TouchableNativeFeedback>
+            }
+          
+          </View>
+        </ImageBackground>
+      )
+    
   }
 
   renderListItem = ({item, index}) => {
@@ -100,28 +112,19 @@ export default class GraphSelectionView extends Component {
     this.setState({values: values, multiSelect: values.map(v => v.selected).some(Boolean)});
   }
 }
-/* 
- StackNavigator({
-  GraphSelection: {
-    screen: GraphSelectionView,
-  },
-  Graph: {
-    screen: GraphView
-  },
-},
-{
-  headerMode: 'none',
-}); */
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 20
+    marginTop: 60
   },
   item: {
     padding: 10,
     backgroundColor: 'rgba(0,0,0,0.5)',
-    marginBottom: 3
+    marginBottom: 3,
+  /*   borderBottomWidth: 1,
+    borderTopWidth: 1,
+    borderColor: '#000', */
   },
   dateText: {
     fontSize: 22,

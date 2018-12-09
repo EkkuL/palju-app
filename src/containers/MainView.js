@@ -13,7 +13,8 @@ import {
   ImageBackground,
   Animated,
   Image,
-  ScrollView
+  ScrollView,
+  Picker
 } from 'react-native';
 
 
@@ -21,15 +22,13 @@ import moment from 'moment'
 import Icon from 'react-native-vector-icons/Ionicons';
 import config from '../../config'
 import EntypoIcon from 'react-native-vector-icons/Entypo';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
 import backgroundImage from '../assets/background.jpg';
 
 import GraphSelectionView from './GraphSelectionView';
 
 import InformationRow from '../components/InformationRow';
-//import WheelPickerEdit from '../components/WheelPickerEdit';
-//import BurnerIndicator from '../components/BurnerIndicator';
-//import {ImageHeader} from '../components/ImageHeader';
 
 const minHeight = 90;
 const maxHeight = 500;
@@ -76,15 +75,40 @@ const editable = {
 
 const CONNECTION_STATUSES = {
   connecting: 'CONNECTING',
-  connected: 'CONNECTED',
-  reconnecting: 'RECONNECTING'
+  connected: 'CONNECTING',
+  reconnecting: 'RECONNECTING',
+  failed: 'FAILED'
 }
 
 const STATUS_LABELS = {
   FOFF: 'TURNING OFF',
-  OFF: 'SHUTDOWN',
-  ON: 'WARMING UP',
+  OFF: 'BURNER OFF',
+  ON: 'BURNER ON',
   UPKEEP: 'UPKEEP'
+}
+
+Object.filter = (obj, predicate) => {
+  var filtered = Object.keys(obj)
+    .filter( key => predicate(key, obj[key]) )
+    .map( key => ({ [key]: obj[key] }) );
+  return filtered.length > 0 ? Object.assign(...filtered ) : {};
+}
+  
+Object.isEquivalent = (a, b) => {
+  var aProps = Object.getOwnPropertyNames(a);
+  var bProps = Object.getOwnPropertyNames(b);
+  if (aProps.length != bProps.length) {
+      return false;
+  }
+  for (var i = 0; i < aProps.length; i++) {
+      var propName = aProps[i];
+
+      if (a[propName] !== b[propName]) {
+          return false;
+      }
+  }
+
+  return true;
 }
 
 export default class MainView extends Component {
@@ -97,7 +121,10 @@ export default class MainView extends Component {
     this.state = {
       connectionStatus: CONNECTION_STATUSES.connecting,
       connectionAnimationDone: false,
-      values: {}
+      values: {},
+      editedValues : {},
+      sentValues: {},
+      disconnected: false
     };
 
   }
@@ -107,20 +134,28 @@ export default class MainView extends Component {
     this._socket = new WebSocket('ws://' + config.websocketAddress, 'mobile');
 
     this._socket.onopen = () => {
+      console.log("Open")
       this.setState({ connectionStatus: CONNECTION_STATUSES.connected });
     };
 
     this._socket.onmessage = this.receive;
 
     this._socket.onerror = (e) => {
+      console.log("Error")
+
       console.log(e.message);
+      this.setState({ connectionStatus: CONNECTION_STATUSES.failed });
     };
 
     this._socket.onclose = (e) => {
-      this.reconnectTimeoutId = setTimeout(this.connect, 10000) // Try to reconnect in 10 seconds
-      this.setState({
-        connectionStatus: CONNECTION_STATUSES.reconnecting,
-      });
+      console.log("Closing")
+
+      this.reconnectTimeoutId = setTimeout(() => {
+        this.connect();
+        this.setState({
+          connectionStatus: CONNECTION_STATUSES.reconnecting
+        });
+      }, 10000) // Try to reconnect in 10 seconds
     };
   }
 
@@ -134,15 +169,22 @@ export default class MainView extends Component {
   }
 
   render() {
-    const { connected, connectionAnimationDone } = this.state;
+    const { connectionStatus, connectionAnimationDone, editedValues, sentValues, renderBurnerDialog } = this.state;
     console.log(this.state)
 
     return (
       <ImageBackground style={styles.background} source={backgroundImage}>
+        {renderBurnerDialog && this.renderBurnerDialog()}
         <ScrollView style={{flex: 1}}>
           { this.renderButtons() }
-          { (connected == CONNECTION_STATUSES.connecting || !connectionAnimationDone) ? this.renderConnecting() : this.renderInformationRows() }
+          { (connectionStatus != CONNECTION_STATUSES.connected || !connectionAnimationDone) ? this.renderConnecting() : this.renderInformationRows() }
         </ScrollView>
+
+        {Object.keys(editedValues).length > 0 && (
+          <TouchableNativeFeedback onPress={this.handleSend}>
+            <Text style={styles.bottomButtonText}> {Object.keys(sentValues).length > 0 ? 'Sending...' : 'Send'} </Text>    
+          </TouchableNativeFeedback>
+        )}
       </ImageBackground>
 
     )
@@ -151,9 +193,11 @@ export default class MainView extends Component {
 
 
   renderConnecting = () => {
+    const { connectionStatus, connectionAnimationDone } = this.state;
+
     return (
       <InformationRow 
-        label={'CONNECTING...'} 
+        label={`${connectionStatus}...`} 
         animated={true}
         value={' '}
         style={{flex: 1, marginTop: 0, marginLeft: 20, marginRight: 20}}
@@ -168,29 +212,35 @@ export default class MainView extends Component {
   }
 
   renderInformationRows = () => {
-    const { values } = this.state;
+    const { values, disconnected } = this.state;
 
     return (
       <View style={{flexDirection: 'column'}}>
         < InformationRow
           label={STATUS_LABELS[values.warming_phase]}
+          unit={'°C'}
           style={{marginTop: 0, marginLeft: 20, marginRight: 20}}
           labelTextStyle={{fontSize: 22}}
-          value={values.temp_high + '°C'}
+          value={values.temp_high}
+          progress={Math.min(parseFloat(values.water_level,10) / parseFloat(values.water_level_target,10) * 100, 100)}
           valueTextStyle={{fontSize: 52}}
+          editable={true} 
+          decorator={disconnected ? (<View style={styles.offSync}><MaterialIcon name="sync-problem" size={40} color="#299BFF" onPress={ () => {ToastAndroid.show('Data shown is older than 3 minutes', ToastAndroid.SHORT)}} /></View>) : null}
         />
         <InformationRow
           label={'LOW'}
+          unit={'°C'}
           style={styles.smallInfo}
           labelTextStyle={styles.smallInfoLabel}
-          value={values.temp_low + '°C'}
+          value={values.temp_low}
           valueTextStyle={styles.smallInfoValue}
         />
         <InformationRow
           label={'AMBIENT'}
+          unit={'°C'}
           style={styles.smallInfo}
           labelTextStyle={styles.smallInfoLabel}
-          value={values.temp_ambient + '°C'}
+          value={values.temp_ambient}
           valueTextStyle={styles.smallInfoValue}
         />
         <InformationRow
@@ -202,24 +252,31 @@ export default class MainView extends Component {
         />
         <InformationRow
           label={'EGT'}
+          unit={'°C'}
           style={styles.smallInfo}
           labelTextStyle={styles.smallInfoLabel}
-          value={values.egt + ( values.egt ? '°C' : '' ) }
+          value={values.egt}
           valueTextStyle={styles.smallInfoValue}
         />
         <InformationRow
           label={'LIMIT'}
+          unit={'°C'}
           style={styles.smallInfo}
           labelTextStyle={styles.smallInfoLabel}
-          value={values.low_limit + '°C'}
+          value={values.low_limit}
           valueTextStyle={styles.smallInfoValue}
+          editable={true}
+          onEndEditing={(value) => {this.onEndEditing({low_limit: value})}}
         />
         <InformationRow
           label={'TARGET'}
+          unit={'°C'}
           style={styles.smallInfo}
           labelTextStyle={styles.smallInfoLabel}
-          value={values.target  + '°C'}
+          value={values.target}
           valueTextStyle={styles.smallInfoValue}
+          editable={true}
+          onEndEditing={(value) => {this.onEndEditing({target: value})}}
         />
       </View>
     )
@@ -244,33 +301,46 @@ export default class MainView extends Component {
     )
   }
 
+  onEndEditing = (newValue) => {
+    let newValues = {...this.state.editedValues, ...newValue }
+    // Filter null values (undo)
+    newValues = Object.filter(newValues, (key, value) => value !== null); 
+    this.setState({editedValues: Object.keys(newValues).length > 0 ? newValues : {} });
+  }
 
-  checkDataValidity = (values) => {
-    if(values.timestamp + 180 > moment().unix()) {
-      console.log("asdsad")
-      this.setState({
-        active: true
-      });
-    } else if (Object.keys(values).length > 0) {
-       if (this.state.active) {
-      //   this.setState({
-      //     active: false
-      //   });
-       } 
-    }
+
+  checkDataValidity = () => {
+    const {values} = this.state;
+    console.log([values.timestamp + 180, moment().unix()])
+    this.setState({
+      disconnected: values.timestamp + 180 < moment().unix()
+    });
   }
 
   receive = (msg) => {
+    const {sentValues, editedValues} = this.state;
+
     console.log("Got message: " + msg)
     console.log(msg.data)
     
     const data =  JSON.parse(msg.data);
 
+    // Some test data until socket returns these
+    data.egt = "140.2";   
+
     if (Object.keys(data).length > 0){
       this.setState({
         values: data
-      });
+      }, this.checkDataValidity);
+      if (Object.keys(editedValues).length === 0 || Object.isEquivalent(Object.filter(data, (key,value) => Object.keys(editedValues).indexOf(key) !== -1), editedValues)){
+        // Got the same response as sentValues
+        this.setState({
+          sentValues: {},
+          editedValues: {}
+        });
+      }
     }
+
   }
 
   // Expects string
@@ -280,34 +350,13 @@ export default class MainView extends Component {
   }
 
   handleSend = () => {
-    const { updateData, data } = this.state;
-    const newData = {...data, ...updateData};
+    const { values, editedValues } = this.state;
+    const newData = {...values, ...editedValues};
 
     this.emit(JSON.stringify(newData));
 
-    this.setState({data: {...newData}, updateData: {}})
+    this.setState({sentValues: newData})
   }
-
-  handleCancel = () => {
-     this.setState({updateData: {}})
-  }
-
-  updateValue = (key, value) => {
-   /*  if (this.state.data[key] != value) {
-      this.setState(prevState => ({
-        updateData: {
-          ...prevState.updateData,
-          [key]: value
-        },
-        edit: null
-      }));
-    } else {
-      let newUpdateData = { ...this.state.updateData };
-      delete newUpdateData[key]
-      this.setState({updateData: newUpdateData, edit: null })
-    } */
-  };
-
 }
 
 
@@ -344,10 +393,17 @@ const styles = StyleSheet.create({
     fontSize: 26
   },
 
+  offSync: {
+    width: 40, 
+    height: 40
+  },
+
   smallInfo: {
     width: '45%',
     marginTop: 10,
-    marginLeft: 20
+    marginLeft: 20,
+    marginRight: 20,
+  //  alignSelf: 'flex-end'
   },
 
   background: {
@@ -424,5 +480,14 @@ const styles = StyleSheet.create({
     flex: 1,
     borderColor: '#7caad0',
     borderWidth: 1
+  },
+
+  bottomButtonText: {
+    textAlign: 'center',
+    color: '#FFF',
+    fontSize: 20,
+    padding: 10,
+    backgroundColor: '#299BFF',
+    margin: 10,
   },
 });

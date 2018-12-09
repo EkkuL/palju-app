@@ -1,12 +1,16 @@
 import React, { Component } from 'react';
+
 import {
   StyleSheet,
   Text,
+  TextInput,
   View,
   TouchableNativeFeedback,
-  Animated
+  Animated,
+  ToastAndroid
 } from 'react-native';
 
+import EntypoIcon from 'react-native-vector-icons/Entypo';
 import PropTypes from 'prop-types';
 
 
@@ -15,7 +19,9 @@ export default class InformationRow extends Component {
     super(props);
 
     this.state = {
-      progressAnim: new Animated.Value(0)
+      progressAnim: new Animated.Value(0),
+      value: props.value,
+      displayUnit: props.unit ? true : false
     }
   }
 
@@ -33,30 +39,96 @@ export default class InformationRow extends Component {
     }
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.value == this.state.value || !this.props.editable) {
+      this.setState({value: nextProps.value});
+    }
+  }
+
   render() {
-    const { value, label, animated, style, labelTextStyle, valueTextStyle } = this.props;
-    let { progressAnim } = this.state;
+    const { label, animated, style, labelTextStyle, valueTextStyle, progress, editable, onFocus, onEndEditing, unit, decorator, onPress } = this.props;
+    const { progressAnim, value, displayUnit } = this.state;
 
     return (
-      <View style={style}>
-        <Text style={[styles.valueText, valueTextStyle]}>{value}</Text>
-        <View style={styles.progressWrapper}>
-          <View style ={[styles.progressBarBg, {opacity: (animated ? 0.4 : 0.8) }]}>
-          </View>
-          <Animated.View style={[styles.progressBar, { width: progressAnim.interpolate({
-            inputRange: [0, 1],
-            outputRange: ['0%', '1%'],
-          }) }]}></Animated.View>
+      <TouchableNativeFeedback onPress={() => {editable ? this.input.focus() : (typeof onPress == 'function' ? onPress() : ToastAndroid.show('This is not editable', ToastAndroid.SHORT))}}>
+        <View style={style}>
+            <View style={styles.rowWrapper}>
+              { editable ? 
+                <TextInput 
+                  keyboardAppearance={'dark'} 
+                  keyboardType={'numeric'} 
+                  underlineColorAndroid='rgba(0,0,0,0)' 
+                  style={[styles.valueTextInput,valueTextStyle]} 
+                  value={`${value}${displayUnit ? unit : ''}`}
+                  onFocus={this.onFocus}
+                  onEndEditing={this.onEndEditing}
+                  onChangeText={this.onChangeText}
+                  ref={(input) => { this.input = input; }}
+                />
+                : 
+                <Text style={[styles.valueText, valueTextStyle]}>{`${value}${displayUnit ? unit : ''}`}</Text>
+              }
+                {this.renderUndoIcon()}
+                {decorator}
+            </View>
+              <View style={styles.progressWrapper}>
+              <View style ={[styles.progressBarBg, {opacity: 0.4 }]}>
+              </View>
+              { 
+                animated ? 
+                  (<Animated.View style={[styles.progressBar, { width: progressAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ['0%', '1%'],
+                  }) }]}></Animated.View>) 
+                : 
+                  (<View style={[styles.progressBar, { width: `${progress}%` }]}></View>)
+              }
+            </View>
+
+            <Text style={[styles.labelText, labelTextStyle]}>{label}</Text>
         </View>
-        <Text style={[styles.labelText, labelTextStyle]}>{label}</Text>
-      </View>
+      </TouchableNativeFeedback>
+
     )
+  }
+
+  renderUndoIcon = () => {
+    const {editable} = this.props;
+    const {value} = this.state;
+
+    return (editable && value != this.props.value) ? (
+      <View style={styles.undoIcon}>
+        <EntypoIcon name="ccw" size={20} color="#299BFF" onPress={this.onUndo} />
+      </View>
+    ) : null
+  }
+
+  onFocus = () => {
+    this.setState({displayUnit: false})
+  }
+  
+  onEndEditing = () => {
+    this.setState({displayUnit: true})
+    if (this.state.value != this.props.value){
+      this.props.onEndEditing(this.state.value);
+    }
+  }
+
+  onChangeText = (value) => {
+    this.setState({value});
+  }
+
+  onUndo = () => {
+    this.setState({value: this.props.value}, () => {
+      this.props.onEndEditing(null);
+    });
   }
 }
 
 InformationRow.defaultProps = {
   value: '', 
-  label: '', 
+  label: '',
+  progress: 100, 
   animated: false,
   finishedCallback: () => {},
   style: {},
@@ -65,7 +137,6 @@ InformationRow.defaultProps = {
 }
 
 InformationRow.propTypes = {
-  value: PropTypes.string, 
   label: PropTypes.string, 
   animated: PropTypes.bool,
   finishedCallback: PropTypes.func
@@ -93,12 +164,29 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: '#FFFFFF',
     opacity: 0.9,
-    textAlign: 'left'
+    textAlign: 'left',
+  },
+  valueTextInput: {
+    fontSize: 24,
+    color: '#FFFFFF',
+    opacity: 0.9,
+    textAlign: 'left',
+    borderWidth: 0,
+    paddingBottom: 0
   },
   labelText: {
     fontSize: 18,
     color: '#FFFFFF',
     opacity: 0.9,
     textAlign: 'right'
+  },
+  undoIcon: {
+    width: 20, 
+    height: 20
+  },
+  rowWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   }
 });

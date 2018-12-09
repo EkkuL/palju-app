@@ -20,8 +20,11 @@ const Api = {
         console.log("fetchInstances")
         console.log(dates)
         Promise.all(dates.map(d => Api.fetchInstance(d.start, d.end))) 
-        .then((responses) => {
-          callback(responses.map(response => response.json()));
+        .then((responses) => Promise.all(
+          responses.map(r => r.json())
+        ))
+        .then(data => {
+          callback(data);
         })
         .catch((error) => {
             console.error(error);
