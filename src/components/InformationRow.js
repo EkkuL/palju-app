@@ -46,7 +46,7 @@ export default class InformationRow extends Component {
   }
 
   render() {
-    const { label, animated, style, labelTextStyle, valueTextStyle, progress, editable, onFocus, onEndEditing, unit, decorator, onPress } = this.props;
+    const { label, animated, style, labelTextStyle, valueTextStyle, progress, editable, onFocus, onEndEditing, unit, decorator, onPress, keyboardType } = this.props;
     const { progressAnim, value, displayUnit } = this.state;
 
     return (
@@ -56,7 +56,7 @@ export default class InformationRow extends Component {
               { editable ? 
                 <TextInput 
                   keyboardAppearance={'dark'} 
-                  keyboardType={'numeric'} 
+                  keyboardType={keyboardType ? keyboardType : 'numeric'} 
                   underlineColorAndroid='rgba(0,0,0,0)' 
                   style={[styles.valueTextInput,valueTextStyle]} 
                   value={`${value}${displayUnit ? unit : ''}`}
@@ -69,7 +69,7 @@ export default class InformationRow extends Component {
                 <Text style={[styles.valueText, valueTextStyle]}>{`${value}${displayUnit ? unit : ''}`}</Text>
               }
                 {this.renderUndoIcon()}
-                {decorator}
+                {decorator} 
             </View>
               <View style={styles.progressWrapper}>
               <View style ={[styles.progressBarBg, {opacity: 0.4 }]}>

@@ -15,6 +15,7 @@ import {
 
 import MainView from './containers/MainView';
 import GraphSelectionView from './containers/GraphSelectionView';
+import InfoView from './containers/InfoView';
 import GraphView from './containers/GraphView';
 
 //import backgroundImage from './assets/background.jpg';
@@ -42,6 +43,30 @@ export default StackNavigator({
     screen: GraphSelectionView,
     navigationOptions: ({navigation}) => ({
       title: "Select graphs",
+      headerTransparent: true,
+      headerTitleStyle: {
+        flex: 1,
+        color: '#FFF',
+        fontSize: 28,
+        alignSelf: 'center',
+        textAlign: 'center',
+        fontFamily: 'sans-serif-thin'
+      },
+      headerLeft: (
+        <TouchableHighlight
+          onPress={() => navigation.goBack()}
+          underlayColor={'#444444'}
+          style={{padding: 16, marginLeft: 2, borderRadius: 28}}>
+            {backArrow}
+        </TouchableHighlight>
+      ),
+      headerRight: (<View></View>)
+    })
+  },
+  Info: {
+    screen: InfoView,
+    navigationOptions: ({navigation}) => ({
+      title: "Info",
       headerTransparent: true,
       headerTitleStyle: {
         flex: 1,

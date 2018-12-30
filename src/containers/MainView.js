@@ -14,7 +14,8 @@ import {
   Animated,
   Image,
   ScrollView,
-  Picker
+  Picker,
+  AsyncStorage
 } from 'react-native';
 
 
@@ -36,14 +37,6 @@ const confirm = (<Icon name="ios-arrow-round-forward" size={30} color="#7caad0" 
 const cancel = (<Icon name="ios-close" size={30} color="#7caad0" />);
 const graphIcon = (<EntypoIcon name="line-graph" size={25} color="#ddd" />);
 const infoIcon = (<EntypoIcon name="info-with-circle" size={25} color="#ddd" />);
-//const sad = (<EntypoIcon name="emoji-sad" size={26} color="#8ea8be" elevation={4}/>);
-
-/*const pickerValues = {
-  warming_phase: [ ['ON', 'FOFF'] ], 
-  target: [ Array.from({length:25},(v,k)=>k+20), Array.from({length:10},(v,k)=>k) ], 
-  low_limit: [ Array.from({length:25},(v,k)=>k+20), Array.from({length:10},(v,k)=>k) ], 
-};*/
-
 
 const labels = {
   temp_low: 'LOW', 
@@ -52,7 +45,9 @@ const labels = {
   warming_phase: 'WARMING PHASE', 
   target: 'TARGET', 
   low_limit: 'LIMIT',
-  egt: 'EGT'
+  egt: 'EGT',
+  water_level: 'WATER LEVEL',
+  water_level_target: 'WATER TARGET'
 };
 
 const editable = {
@@ -64,15 +59,6 @@ const editable = {
   low_limit: true
 };
 
-
-/* const { UIManager } = NativeModules;
- */
-//sconst sync = (<Icon name="ios-sync" size={30} color="#7caad0" />);
-
-/* UIManager.setLayoutAnimationEnabledExperimental &&
-  UIManager.setLayoutAnimationEnabledExperimental(true);
- */
-
 const CONNECTION_STATUSES = {
   connecting: 'CONNECTING',
   connected: 'CONNECTING',
@@ -81,7 +67,7 @@ const CONNECTION_STATUSES = {
 }
 
 const STATUS_LABELS = {
-  FOFF: 'TURNING OFF',
+  FOFF: 'TURN OFF',
   OFF: 'BURNER OFF',
   ON: 'BURNER ON',
   UPKEEP: 'UPKEEP'
@@ -117,6 +103,7 @@ export default class MainView extends Component {
     super(props);
 
     this._socket = undefined;
+    this.input = undefined;
 
     this.state = {
       connectionStatus: CONNECTION_STATUSES.connecting,
@@ -130,8 +117,8 @@ export default class MainView extends Component {
   }
 
   
-  connect = () => {
-    this._socket = new WebSocket('ws://' + config.websocketAddress, 'mobile');
+  connect = (ip) => {
+    this._socket = new WebSocket('ws://' + ip, 'mobile');
 
     this._socket.onopen = () => {
       console.log("Open")
@@ -151,7 +138,11 @@ export default class MainView extends Component {
       console.log("Closing")
 
       this.reconnectTimeoutId = setTimeout(() => {
-        this.connect();
+        AsyncStorage.getItem('serverIp').then(ip => {
+          this.connect(ip);
+        }).catch(error => {
+          ToastAndroid.show('No server ip set', ToastAndroid.SHORT)
+        })
         this.setState({
           connectionStatus: CONNECTION_STATUSES.reconnecting
         });
@@ -160,7 +151,11 @@ export default class MainView extends Component {
   }
 
   componentWillMount() {
-    this.connect();
+    AsyncStorage.getItem('serverIp').then(ip => {
+      this.connect(ip);
+    }).catch(error => {
+      ToastAndroid.show('No server ip set', ToastAndroid.SHORT)
+    })
   }
   
   componentWillUnmount() {
@@ -169,12 +164,11 @@ export default class MainView extends Component {
   }
 
   render() {
-    const { connectionStatus, connectionAnimationDone, editedValues, sentValues, renderBurnerDialog } = this.state;
+    const { connectionStatus, connectionAnimationDone, editedValues, sentValues } = this.state;
     console.log(this.state)
 
     return (
       <ImageBackground style={styles.background} source={backgroundImage}>
-        {renderBurnerDialog && this.renderBurnerDialog()}
         <ScrollView style={{flex: 1}}>
           { this.renderButtons() }
           { (connectionStatus != CONNECTION_STATUSES.connected || !connectionAnimationDone) ? this.renderConnecting() : this.renderInformationRows() }
@@ -213,20 +207,24 @@ export default class MainView extends Component {
 
   renderInformationRows = () => {
     const { values, disconnected } = this.state;
+    const currentValues = {...this.state.values, ...this.state.editedValues}
 
     return (
       <View style={{flexDirection: 'column'}}>
         < InformationRow
-          label={STATUS_LABELS[values.warming_phase]}
+          label={STATUS_LABELS[currentValues.warming_phase]}
           unit={'°C'}
           style={{marginTop: 0, marginLeft: 20, marginRight: 20}}
           labelTextStyle={{fontSize: 22}}
           value={values.temp_high}
           progress={Math.min(parseFloat(values.water_level,10) / parseFloat(values.water_level_target,10) * 100, 100)}
           valueTextStyle={{fontSize: 52}}
-          editable={true} 
-          decorator={disconnected ? (<View style={styles.offSync}><MaterialIcon name="sync-problem" size={40} color="#299BFF" onPress={ () => {ToastAndroid.show('Data shown is older than 3 minutes', ToastAndroid.SHORT)}} /></View>) : null}
+          onPress={this.onMainRowPress} 
+          decorator={
+            disconnected ? (<View style={styles.offSync}><MaterialIcon name="sync-problem" size={40} color="#299BFF" onPress={ () => {ToastAndroid.show('Data shown is older than 3 minutes', ToastAndroid.SHORT)}} /></View>)
+             : null }
         />
+ 
         <InformationRow
           label={'LOW'}
           unit={'°C'}
@@ -250,14 +248,22 @@ export default class MainView extends Component {
           value={moment(values.estimation, 'X').format('HH:mm')}
           valueTextStyle={styles.smallInfoValue}
         />
-        <InformationRow
+        {values.egt && <InformationRow
           label={'EGT'}
           unit={'°C'}
           style={styles.smallInfo}
           labelTextStyle={styles.smallInfoLabel}
           value={values.egt}
           valueTextStyle={styles.smallInfoValue}
-        />
+        />}
+        {values.fuel_level && <InformationRow
+          label={'EGT'}
+          unit={'°C'}
+          style={styles.smallInfo}
+          labelTextStyle={styles.smallInfoLabel}
+          value={values.fuel_level}
+          valueTextStyle={styles.smallInfoValue}
+        />}
         <InformationRow
           label={'LIMIT'}
           unit={'°C'}
@@ -278,6 +284,16 @@ export default class MainView extends Component {
           editable={true}
           onEndEditing={(value) => {this.onEndEditing({target: value})}}
         />
+        <InformationRow
+          label={'WATER TARGET'}
+          unit={'cm'}
+          style={[styles.smallInfo, {paddingBottom: 20}]}
+          labelTextStyle={styles.smallInfoLabel}
+          value={values.water_level_target}
+          valueTextStyle={styles.smallInfoValue}
+          editable={true}
+          onEndEditing={(value) => {this.onEndEditing({water_level_target: value})}}
+        />
       </View>
     )
   }
@@ -292,13 +308,19 @@ export default class MainView extends Component {
             {graphIcon}
           </View>
         </TouchableNativeFeedback>
-        <TouchableNativeFeedback onPress={() => {this.props.navigation.navigate('GraphSelection')}}>
+        <TouchableNativeFeedback onPress={() => {this.props.navigation.navigate('Info')}}>
           <View style={styles.navButton} >
             {infoIcon}
           </View>
         </TouchableNativeFeedback>
       </View>
     )
+  }
+
+  onMainRowPress = () => {
+    const currentValues = {...this.state.values, ...this.state.editedValues}
+    const value = (currentValues.warming_phase == 'OFF' || currentValues.warming_phase == 'FOFF') ? 'ON' : 'FOFF'
+    this.onEndEditing({warming_phase: this.state.values.warming_phase == value ? null : value});
   }
 
   onEndEditing = (newValue) => {
@@ -326,7 +348,8 @@ export default class MainView extends Component {
     const data =  JSON.parse(msg.data);
 
     // Some test data until socket returns these
-    data.egt = "140.2";   
+    //data.egt = "140.2";   
+    //data.fuel_level = "5.2";
 
     if (Object.keys(data).length > 0){
       this.setState({
@@ -403,7 +426,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginLeft: 20,
     marginRight: 20,
-  //  alignSelf: 'flex-end'
   },
 
   background: {
@@ -411,75 +433,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     height: '100%',
-  },
-
-  screen: {
-    flex: 1,
-    backgroundColor: 'rgba(13, 52, 84, 1)',
-    borderStyle: 'solid',
-    borderWidth: 8,
-    borderColor: 'rgba(0,0,0,0.8)',
-    overflow: 'hidden'
-  },
-
-  screenContentWrapper: {
-    width: '100%',
-    paddingTop: 15,
-    paddingBottom: 15,
-    paddingLeft: 15,
-    paddingRight: 15,
-    height: 500
-  },
-
-  screenText: {
-    color: 'rgba(124, 170, 208, 0.7)',
-    flex: 1,
-    fontSize: 20
-  },
-
-  extraView: {
-    flex: 1
-  },
-
-  basicView: {
-    flexDirection: 'row',
-    flex: 1
-  },
-
-  textBig: {
-    fontFamily: 'notoserif',
-    fontSize: 20,
-    color: 'rgb(82, 124, 161)'
-  },
-
-  textMedium: {
-    fontFamily: 'notoserif',
-    fontSize: 16,
-    color: 'rgb(82, 124, 161)'
-  },
-
-  textSmall: {
-    fontFamily: 'notoserif',
-    fontSize: 12,
-    color: 'rgb(82, 124, 161)'
-  },
-
-  editTextWrapper: {
-    alignItems: 'center', 
-    justifyContent: 'center'
-  },
-  
-  editText: {
-      color: '#7caad0',
-      textAlign: 'center'
-  },
-
-  editButton: {
-    margin: 10,
-    height: 30,
-    flex: 1,
-    borderColor: '#7caad0',
-    borderWidth: 1
   },
 
   bottomButtonText: {
